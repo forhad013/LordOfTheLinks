@@ -212,8 +212,9 @@ fun CategoryPickerPresenter(
                 }
 
                 CategoryPickerEvent.UndoDelete -> {
-                    // rows were only hidden by the categories getter; dropping the delete state restores them
-                    state = resetDeleteState(state)
+                    // rows were only hidden by the categories getter; dropping the delete state restores them.
+                    // Nothing was deleted, so the selection stays on the restored category
+                    state = resetDeleteState(state).copy(selectedCategoryId = state.selectedCategoryId)
                 }
 
                 is CategoryPickerEvent.ToggleChecked -> {
