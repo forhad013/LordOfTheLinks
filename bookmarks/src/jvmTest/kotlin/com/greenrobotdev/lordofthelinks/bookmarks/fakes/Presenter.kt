@@ -7,6 +7,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
 import kotlin.time.Duration.Companion.minutes
 
@@ -27,6 +28,9 @@ class PresenterRun<E, S>(private val events: MutableSharedFlow<E>, private val s
             delay(SETTLE)
         }
     }
+
+    /** For work on a real dispatcher (e.g. the metadata fetch), which virtual time doesn't wait for. */
+    suspend fun awaitState(predicate: (S) -> Boolean): S = states.first(predicate)
 
     /** All events back to back with no time passing between them (e.g. Undo inside the undo window), then settle. */
     suspend fun sendTogether(vararg event: E) {
