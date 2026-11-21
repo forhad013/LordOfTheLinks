@@ -64,6 +64,9 @@ kotlin {
             implementation(libs.kotlin.test)
             // In-memory Settings (MapSettings) for FeedFilterStoreTest
             implementation(libs.multiplatform.settings.test)
+            // Fake HTTP responses for MetadataFetchService; coroutine test dispatcher for presenter tests
+            implementation(libs.ktor.client.mock)
+            implementation(libs.kotlinx.coroutines.test)
             implementation(kotlin("test-common"))
             implementation(kotlin("test-annotations-common"))
         }
