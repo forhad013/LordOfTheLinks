@@ -47,4 +47,52 @@ class RoomTagRepositoryTest {
     fun updatingAMissingTagFails() = runTest {
         assertTrue(repo.updateTag(Tag(id = "nope", name = "x", count = 0)).first().isFailure)
     }
+
+    @Test
+    fun addTagGeneratesAnIdWhenEmpty() = runTest {
+        val saved = repo.addTag(Tag(id = "", name = "kotlin", count = 0)).first().getOrThrow()
+
+        assertTrue(saved.id.isNotEmpty())
+        assertEquals("kotlin", repo.getTagById(saved.id).first().getOrThrow()?.name)
+    }
+
+    @Test
+    fun tagsForLinkReEmitOnAssignAndRemove() = runTest {
+        db.linkDao().insertLink(link("a"))
+        repo.addTag(Tag(id = "t", name = "kotlin", count = 0))
+        val emissions = backgroundScope.emissionsOf(repo.getTagsForLink("a"))
+        assertEquals(emptyList(), emissions.receive().getOrThrow())
+
+        repo.assignTagToLink("a", "t").first().getOrThrow()
+        assertEquals(listOf("t"), emissions.receive().getOrThrow().map { it.id })
+
+        repo.removeTagFromLink("a", "t").first().getOrThrow()
+        assertEquals(emptyList(), emissions.receive().getOrThrow())
+    }
+
+    @Test
+    fun tagsCarryTheirLinkCount() = runTest {
+        db.linkDao().insertLinks(listOf(link("a"), link("b")))
+        repo.addTag(Tag(id = "t", name = "kotlin", count = 0))
+        repo.assignTagToLink("a", "t").first().getOrThrow()
+        repo.assignTagToLink("b", "t").first().getOrThrow()
+
+        assertEquals(2, repo.getTags().first().getOrThrow().single().count)
+    }
+
+    @Test
+    fun assigningATagToAMissingLinkFails() = runTest {
+        repo.addTag(Tag(id = "t", name = "kotlin", count = 0))
+
+        assertTrue(repo.assignTagToLink("missing", "t").first().isFailure)
+    }
+
+    @Test
+    fun deleteTagRemovesIt() = runTest {
+        repo.addTag(Tag(id = "t", name = "kotlin", count = 0))
+
+        repo.deleteTag("t").first().getOrThrow()
+
+        assertEquals(emptyList(), repo.getTags().first().getOrThrow())
+    }
 }
