@@ -18,6 +18,9 @@ import kotlin.time.Duration.Companion.minutes
  */
 private val SETTLE = 1.minutes
 
+/** Let queued work and timers finish; see [SETTLE]. */
+suspend fun settle() = delay(SETTLE)
+
 /** A Molecule presenter running on the test scheduler; [send] delivers events and lets their effects finish. */
 class PresenterRun<E, S>(private val events: MutableSharedFlow<E>, private val states: StateFlow<S>) {
     val state: S get() = states.value
