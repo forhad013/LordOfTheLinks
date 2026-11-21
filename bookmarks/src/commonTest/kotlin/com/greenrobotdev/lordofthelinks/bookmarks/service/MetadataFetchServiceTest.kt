@@ -167,7 +167,7 @@ class MetadataFetchServiceTest {
     @Test
     fun networkErrorsGetAReadableMessage() = runTest {
         suspend fun messageFor(cause: String) =
-            MetadataFetchService(HttpClient(MockEngine { throw Exception(cause) }))
+            MetadataFetchService(HttpClient(MockEngine { throw IllegalStateException(cause) }))
                 .fetchMetadata(pageUrl).first().exceptionOrNull()?.message
 
         assertEquals("Request timed out. The server took too long to respond.", messageFor("java.net.SocketTimeoutException: read"))
