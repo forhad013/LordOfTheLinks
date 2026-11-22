@@ -38,7 +38,7 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.core)
 
                 // Multiplatform Settings - base library (common code)
-                implementation(libs.multiplatform.settings)
+                api(libs.multiplatform.settings) // Settings is in ThemePreferenceManager's constructor
                 implementation(libs.multiplatform.settings.coroutines)
 
                 // Note: Molecule runtime is platform-specific and added to androidMain, desktopMain, iosMain
