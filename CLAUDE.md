@@ -22,8 +22,8 @@ See `docs/architecture/AGP9_AND_PATTERNS.md`. Highlights: KMP modules use `com.a
 
 ## Device automation (adb on the owner's real phone)
 The test device is the owner's personal Pixel. A blind tap once opened the Camera app from the home screen, so these rules are mandatory:
-- **Package id is `com.greenrobotdev.lordofthelinks.android`.** Launch with `adb shell am start -n com.greenrobotdev.lordofthelinks.android/.MainActivity` and check the output for errors. Never silence launch output (`>/dev/null`).
-- **Check before every tap batch:** `adb shell dumpsys window | grep mCurrentFocus` must show `com.greenrobotdev.lordofthelinks.android`. If it shows the launcher, lock screen, or any other app: stop. Don't tap.
+- **Package ids:** Dev `com.greenrobotdev.lordofthelinks.android.dev`, Test `com.greenrobotdev.lordofthelinks.android.qa`, Release `com.greenrobotdev.lordofthelinks.android` (flavors `dev` / `qa` / `prod`; run `devDebug` day to day). The activity class keeps the base package, so launch with the full name, e.g. `adb shell am start -n com.greenrobotdev.lordofthelinks.android.dev/com.greenrobotdev.lordofthelinks.android.MainActivity`, and check the output for errors. Never silence launch output (`>/dev/null`).
+- **Check before every tap batch:** `adb shell dumpsys window | grep mCurrentFocus` must show the package id of the build you installed. If it shows the launcher, lock screen, or any other app: stop. Don't tap.
 - **Tap by element, not guesswork:** take bounds from `uiautomator dump` for the current screen; never reuse coordinates from an earlier run without re-checking the screen.
 - **Never open, tap into, or act in other apps** (camera, settings, messages, …). Don't send global keys that can launch apps (`KEYCODE_CAMERA`, double `KEYCODE_POWER`, `KEYCODE_HOME` followed by taps).
 - **Never try to unlock the phone** (no swipe/keyevent 82/`wm dismiss-keyguard`, never type a PIN). If it's locked, ask the owner and wait.

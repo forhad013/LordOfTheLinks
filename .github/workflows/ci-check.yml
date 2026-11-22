@@ -85,7 +85,7 @@ jobs:
       - name: Android Lint
         id: lint
         run: >-
-          ./gradlew --continue :app:androidApp:lintDebug :app:lintAndroidMain :bookmarks:lintAndroidMain
+          ./gradlew --continue :app:androidApp:lintProdDebug :app:lintAndroidMain :bookmarks:lintAndroidMain
           :core:design:lintAndroidMain :core:utils:lintAndroidMain :settings:lintAndroidMain
 
       # Every finding on the run's Summary page; the PR comment only has the counts and a link to it
@@ -198,4 +198,4 @@ jobs:
 
       # Debug only: no signing secrets needed, so it also works on PRs from forks
       - name: Compile Android and desktop
-        run: ./gradlew :app:androidApp:assembleDebug :app:desktopApp:compileKotlinJvm
+        run: ./gradlew :app:androidApp:assembleDevDebug :app:desktopApp:compileKotlinJvm

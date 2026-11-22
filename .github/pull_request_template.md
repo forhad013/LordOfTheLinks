@@ -13,7 +13,7 @@
 <!-- Known gaps, follow-ups, anything a reviewer should look at closely. -->
 
 ## How to test
-1. `./gradlew :app:androidApp:assembleDebug`
+1. `./gradlew :app:androidApp:assembleDevDebug`
 2.
 
 ## Checklist

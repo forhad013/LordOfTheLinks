@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Test build: different launcher background so it's told apart from Release at a glance -->
+    <color name="ic_launcher_background">#B45309</color>
+</resources>
