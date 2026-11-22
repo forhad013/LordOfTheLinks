@@ -1,8 +1,8 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker
 
-import com.greenrobotdev.lordofthelinks.bookmarks.fakes.FAILURE
-import com.greenrobotdev.lordofthelinks.bookmarks.fakes.FakeCategoryRepository
-import com.greenrobotdev.lordofthelinks.bookmarks.fakes.present
+import com.greenrobotdev.lordofthelinks.testing.FAILURE
+import com.greenrobotdev.lordofthelinks.testing.FakeCategoryRepository
+import com.greenrobotdev.lordofthelinks.testing.present
 import com.greenrobotdev.lordofthelinks.model.Category
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest

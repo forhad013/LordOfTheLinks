@@ -1,9 +1,9 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens
 
-import com.greenrobotdev.lordofthelinks.bookmarks.fakes.FakeCategoryRepository
-import com.greenrobotdev.lordofthelinks.bookmarks.fakes.FakeLinkRepository
-import com.greenrobotdev.lordofthelinks.bookmarks.fakes.FakeTagRepository
-import com.greenrobotdev.lordofthelinks.bookmarks.fakes.settle
+import com.greenrobotdev.lordofthelinks.testing.FakeCategoryRepository
+import com.greenrobotdev.lordofthelinks.testing.FakeLinkRepository
+import com.greenrobotdev.lordofthelinks.testing.FakeTagRepository
+import com.greenrobotdev.lordofthelinks.testing.settle
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.AddLinkViewModel
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.CategoryPickerEvent
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.CategoryPickerViewModel

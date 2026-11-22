@@ -1,8 +1,8 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.tagPicker
 
-import com.greenrobotdev.lordofthelinks.bookmarks.fakes.FAILURE
-import com.greenrobotdev.lordofthelinks.bookmarks.fakes.FakeTagRepository
-import com.greenrobotdev.lordofthelinks.bookmarks.fakes.present
+import com.greenrobotdev.lordofthelinks.testing.FAILURE
+import com.greenrobotdev.lordofthelinks.testing.FakeTagRepository
+import com.greenrobotdev.lordofthelinks.testing.present
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.DeletePhase
 import com.greenrobotdev.lordofthelinks.model.Tag
 import kotlinx.coroutines.test.TestScope
