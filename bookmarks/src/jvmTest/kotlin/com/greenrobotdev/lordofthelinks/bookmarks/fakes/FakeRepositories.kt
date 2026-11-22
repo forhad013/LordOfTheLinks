@@ -125,5 +125,6 @@ class FakeCategoryRepository(vararg categories: Category) : FakeRepository(), Ca
     override suspend fun getCategoriesWithCounts() = combine(categories, linkCategories) { all, assigned ->
         Result.success(all.map { c -> c.copy(count = assigned.values.count { it == c.id }) })
     }
-    override suspend fun getSmartListCounts() = flowOf(Result.success(SmartListCounts(0, 0, 0, 0)))
+    val smartListCounts = MutableStateFlow(SmartListCounts(0, 0, 0, 0))
+    override suspend fun getSmartListCounts() = smartListCounts.map { Result.success(it) }
 }
