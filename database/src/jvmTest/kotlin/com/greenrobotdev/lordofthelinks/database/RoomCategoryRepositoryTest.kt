@@ -3,6 +3,7 @@ package com.greenrobotdev.lordofthelinks.database
 import com.greenrobotdev.lordofthelinks.database.repository.RoomCategoryRepository
 import com.greenrobotdev.lordofthelinks.database.room.LinkDatabase
 import com.greenrobotdev.lordofthelinks.model.Category
+import com.greenrobotdev.lordofthelinks.model.SmartListCounts
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
@@ -115,6 +116,26 @@ class RoomCategoryRepositoryTest {
 
         repo.clearLinkCategory("a").first().getOrThrow()
         assertNull(repo.getCategoryForLink("a").first().getOrThrow())
+    }
+
+    @Test
+    fun smartListCountsAndTheirUpdates() = runTest {
+        db.linkDao().insertLinks(
+            listOf(
+                link("new"), // unopened, uncategorized
+                link("fav").copy(isFavorite = true, isOpened = true),
+                link("archivedFav").copy(isFavorite = true, isArchived = true), // archived: not unopened, not a favorite
+                link("filed").copy(isOpened = true),
+            ),
+        )
+        add("c")
+        repo.assignLinkToCategory("filed", "c").first().getOrThrow()
+        val emissions = backgroundScope.emissionsOf(repo.getSmartListCounts())
+
+        assertEquals(SmartListCounts(unopened = 1, favorites = 1, archived = 1, uncategorized = 3), emissions.receive().getOrThrow())
+
+        db.linkDao().markOpened("new")
+        assertEquals(0, emissions.receive().getOrThrow().unopened)
     }
 
     @Test

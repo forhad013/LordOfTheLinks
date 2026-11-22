@@ -9,6 +9,7 @@ import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.Categor
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.CategoryPickerViewModel
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.details.LinkDetailEvent
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.details.LinkDetailViewModel
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.LibraryTabViewModel
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.saved.SavedListEvent
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.saved.SavedListViewModel
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.tagPicker.TagPickerEvent
@@ -16,6 +17,7 @@ import com.greenrobotdev.lordofthelinks.bookmarks.screens.tagPicker.TagPickerVie
 import com.greenrobotdev.lordofthelinks.bookmarks.service.MetadataFetchService
 import com.greenrobotdev.lordofthelinks.model.Category
 import com.greenrobotdev.lordofthelinks.model.Link
+import com.greenrobotdev.lordofthelinks.model.SmartListCounts
 import com.greenrobotdev.lordofthelinks.model.Tag
 import com.greenrobotdev.lordofthelinks.model.repository.CategoryRepository
 import com.greenrobotdev.lordofthelinks.model.repository.LinkRepository
@@ -135,9 +137,42 @@ class ViewModelWiringTest {
         assertFalse(viewModel.models.value.isLoading)
         assertEquals(listOf("a"), viewModel.models.value.links.map { it.id })
 
+        val before = links.link("a")
         viewModel.send(SavedListEvent.Archive("a"))
-
         assertTrue(links.link("a").isArchived)
+
+        viewModel.send(SavedListEvent.Restore(before)) // the snackbar's Undo
+        assertFalse(links.link("a").isArchived)
+
+        viewModel.send(SavedListEvent.Opened("a"))
+        assertTrue(links.link("a").isOpened)
+
+        viewModel.send(SavedListEvent.Delete("a"))
+        assertEquals(emptyList(), viewModel.models.value.links)
+    }
+
+    @Test
+    fun libraryTabShowsCountsCategoriesAndTags() = test {
+        categories.smartListCounts.value = SmartListCounts(unopened = 3, favorites = 2, archived = 1, uncategorized = 4)
+        categories.linkCategories.value = mapOf("a" to "dev")
+
+        val state = start(LibraryTabViewModel()).models.value
+
+        assertEquals(listOf(3, 2, 1, 4), listOf(state.unopenedCount, state.favoritesCount, state.archivedCount, state.uncategorizedCount))
+        assertEquals(1, state.categories.single().count)
+        assertEquals(listOf("t"), state.tags.map { it.id })
+    }
+
+    @Test
+    fun libraryTabFollowsChanges() = test {
+        val viewModel = start(LibraryTabViewModel())
+
+        categories.smartListCounts.value = SmartListCounts(unopened = 7, favorites = 0, archived = 0, uncategorized = 0)
+        tags.tags.value = emptyList()
+        settle()
+
+        assertEquals(7, viewModel.models.value.unopenedCount)
+        assertEquals(emptyList(), viewModel.models.value.tags)
     }
 
     @Test
