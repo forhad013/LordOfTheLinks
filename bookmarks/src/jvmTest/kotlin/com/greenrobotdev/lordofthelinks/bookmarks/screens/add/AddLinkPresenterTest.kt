@@ -1,10 +1,10 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.add
 
-import com.greenrobotdev.lordofthelinks.bookmarks.fakes.FAILURE
-import com.greenrobotdev.lordofthelinks.bookmarks.fakes.FakeCategoryRepository
-import com.greenrobotdev.lordofthelinks.bookmarks.fakes.FakeLinkRepository
-import com.greenrobotdev.lordofthelinks.bookmarks.fakes.FakeTagRepository
-import com.greenrobotdev.lordofthelinks.bookmarks.fakes.present
+import com.greenrobotdev.lordofthelinks.testing.FAILURE
+import com.greenrobotdev.lordofthelinks.testing.FakeCategoryRepository
+import com.greenrobotdev.lordofthelinks.testing.FakeLinkRepository
+import com.greenrobotdev.lordofthelinks.testing.FakeTagRepository
+import com.greenrobotdev.lordofthelinks.testing.present
 import com.greenrobotdev.lordofthelinks.bookmarks.service.MetadataFetchService
 import com.greenrobotdev.lordofthelinks.model.Category
 import com.greenrobotdev.lordofthelinks.model.Link

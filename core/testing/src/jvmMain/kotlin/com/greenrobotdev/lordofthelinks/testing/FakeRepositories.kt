@@ -1,4 +1,4 @@
-package com.greenrobotdev.lordofthelinks.bookmarks.fakes
+package com.greenrobotdev.lordofthelinks.testing
 
 import com.greenrobotdev.lordofthelinks.model.Category
 import com.greenrobotdev.lordofthelinks.model.Link

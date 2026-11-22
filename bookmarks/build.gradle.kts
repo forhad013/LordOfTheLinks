@@ -71,6 +71,10 @@ kotlin {
             implementation(kotlin("test-annotations-common"))
         }
 
+        jvmTest.dependencies {
+            implementation(project(":core:testing")) // fake repositories, presenter harness
+        }
+
         val androidMain by getting {
             dependencies {
                 // Ktor HTTP client engine for Android

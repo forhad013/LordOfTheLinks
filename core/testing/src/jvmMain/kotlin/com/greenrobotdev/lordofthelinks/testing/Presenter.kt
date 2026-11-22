@@ -1,4 +1,4 @@
-package com.greenrobotdev.lordofthelinks.bookmarks.fakes
+package com.greenrobotdev.lordofthelinks.testing
 
 import androidx.compose.runtime.Composable
 import app.cash.molecule.RecompositionMode
