@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 plugins {
     alias(libs.plugins.convention.kmp.library)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.kover)
 }
 
 // Settings tab: theme, backup / restore / browser export, app version
@@ -36,6 +37,12 @@ kotlin {
             implementation(project(":core:utils"))
             implementation(project(":core:model"))
             implementation(project(":bookmarks")) // LinksBackupService
+        }
+
+        jvmTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.multiplatform.settings.test) // in-memory theme storage
+            implementation(project(":core:testing"))
         }
 
         androidMain.dependencies {

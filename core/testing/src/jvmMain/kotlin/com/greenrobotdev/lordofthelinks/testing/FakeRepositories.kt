@@ -80,6 +80,7 @@ class FakeTagRepository(vararg tags: Tag) : FakeRepository(), TagRepository {
         write { linkTags.update { it + (linkId to (it[linkId].orEmpty() - tagId)) } }
 }
 
+@Suppress("TooManyFunctions") // one per CategoryRepository method
 class FakeCategoryRepository(vararg categories: Category) : FakeRepository(), CategoryRepository {
     val categories = MutableStateFlow(categories.toList())
     /** linkId → categoryId */
