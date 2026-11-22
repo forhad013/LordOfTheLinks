@@ -1,72 +1,92 @@
-# MoneyNest
+<p align="center">
+  <img src="app/androidApp/src/main/ic_launcher-playstore.png" alt="Lords of Links logo" width="128" />
+</p>
 
+<h1 align="center">Lords of Links</h1>
 
+<p align="center">
+  <b>Save it once, find it later.</b><br/>
+  An offline-first link saver for Android, built with Kotlin Multiplatform and Compose Multiplatform.
+</p>
 
-🎯 WASM Implementation
+Share a link from any app and Lords of Links fetches its title, description and preview image, then files it under your tags and nested categories. Old links come back to the top of your feed so they don't get buried.
 
-Build Configuration:
-- ✅ Added wasmJs target to /Volumes/Projects/KMP project/LinkLibrary/app/build.gradle.kts
-- ✅ Configured webpack settings with CSS support, code splitting, and source maps
-- ✅ Set up wasmMain source set with Compose dependencies
+> Status: Android MVP (milestone 1) in active development. Web app, Chrome extension and sync come in milestone 2.
 
-WASM Application:
-- ✅ Created WasmApp.kt entry point with CanvasBasedWindow
-- ✅ Implemented Koin DI initialization for WASM
-- ✅ Added Material 3 theme setup
-- ✅ Created StitchConfig.wasm.kt for platform-specific API configuration
+## Features
 
-🎯 Chrome Extension
+- **Save from anywhere**: Android share sheet or paste a URL; the title, description and `og:image` are fetched on save
+- **Organize**: tags, nested categories, favorites, archive
+- **Feed**: filters and smart lists, plus resurfacing of links you saved and forgot
+- **Your data stays yours**: fully offline, JSON backup / restore, export to the browser bookmarks HTML format
+- **Material 3 Expressive** UI with a custom design system, motion, light and dark themes, and a first-run tour
 
-Extension Structure:
-- ✅ Created /chrome-extension directory with proper structure
-- ✅ Implemented manifest.json (V3) with proper permissions
-- ✅ Built background.js service worker for link storage and sync
-- ✅ Created modern popup.html UI with Material Design styling
-- ✅ Implemented full popup.js functionality with save/feature actions
+## Tech stack
 
-Extension Features:
-- ✅ Quick save from current tab with optional metadata
-- ✅ Chrome storage API integration (offline-first)
-- ✅ Link count display and management
-- ✅ Communication protocol for WASM app integration
-- ✅ Icon generation tools included
+| Area | Choice |
+| --- | --- |
+| Language / UI | Kotlin 2.2, Compose Multiplatform, Material 3 Expressive |
+| Architecture | MVVM + use cases, [Molecule](https://github.com/cashapp/molecule) presenters, unidirectional state |
+| Navigation | Navigation 3 with one back stack per tab and adaptive list-detail panes |
+| Data | Room KMP (SQLite) with migrations; repositories return `Flow<Result<T>>` |
+| Networking | Ktor |
+| DI | Koin |
+| Images | Coil |
+| Build | AGP 9, Gradle 9 convention plugins (`build-logic/`), version catalog |
+| Quality | Unit tests, Kover coverage, detekt |
+| CI/CD | GitHub Actions: tests and a signed AAB on every push to `main`; the Play Store publish waits for a manual approval |
 
-📁 Files Created
+Targets: **Android** (primary), JVM desktop (runs, used for fast tests). iOS and web are planned.
 
-WASM Target:
-- app/src/wasmMain/kotlin/com/greenrobotdev/lordofthelinks/WasmApp.kt
-- app/src/wasmMain/kotlin/com/greenrobotdev/lordofthelinks/config/StitchConfig.wasm.kt
+## Architecture
 
-Chrome Extension:
-- chrome-extension/manifest.json
-- chrome-extension/background.js
-- chrome-extension/popup.html
-- chrome-extension/popup.js
-- chrome-extension/icons/README.md
-- chrome-extension/icons/icon-generator.html
+```
+app/            App shell: DI, root + tab navigation, welcome tour
+  androidApp/   Android entry point, flavors, share-intent handling
+bookmarks/      Feature: feed, add link, details, tags, categories
+settings/       Feature: theme, backup / restore, export
+database/       Room entities, DAOs, migrations, repository implementations
+core/model/     Domain models + repository interfaces (no Room, so web can reuse it)
+core/design/    Design system: cards, icons, inputs, scrolling, theme
+core/utils/     Molecule ViewModel base
+build-logic/    Convention plugins shared by every module
+```
 
-Modified:
-- app/build.gradle.kts (added WASM target configuration)
+Feature modules depend only on `core/model` interfaces, never on Room. Only the app entry points see the `database` module, so the storage can be swapped (for example for sync) without touching screens.
 
-🚀 Next Steps
+More detail: [docs/architecture/AGP9_AND_PATTERNS.md](docs/architecture/AGP9_AND_PATTERNS.md).
 
-To complete the prototype testing:
+## Build variants
 
-1. Install Java Runtime (required for Gradle builds):
-   brew install openjdk@17  # macOS
-2. Generate Extension Icons:
-   - Open chrome-extension/icons/icon-generator.html in a browser
-   - Download the 16px, 48px, and 128px icons
-   - Place them in the chrome-extension/icons/ directory
-3. Test WASM Build:
-   ./gradlew :app:wasmJsBrowserDevelopmentRun
-4. Load Chrome Extension:
-   - Navigate to chrome://extensions
-   - Enable "Developer mode"
-   - Click "Load unpacked" and select the chrome-extension directory
-5. Test Integration:
-   - Save a link from the extension
-   - Verify it appears in chrome.storage.local
-   - Check communication with WASM app (when running)
+Three flavors install side by side on one device, each with its own labelled icon:
 
-🎨 Code Sharing Achievement
+| Flavor | Application id | Use |
+| --- | --- | --- |
+| `dev` | `com.greenrobotdev.lordofthelinks.android.dev` | Day-to-day development |
+| `qa` | `com.greenrobotdev.lordofthelinks.android.qa` | Testing builds |
+| `prod` | `com.greenrobotdev.lordofthelinks.android` | Play Store |
+
+## Getting started
+
+Requires JDK 17+ and Android Studio (AGP 9 support).
+
+```bash
+./gradlew :app:androidApp:installDevDebug
+```
+
+```bash
+./gradlew :app:jvmTest :bookmarks:jvmTest :database:jvmTest :settings:jvmTest
+```
+
+```bash
+./gradlew detekt koverHtmlReport
+```
+
+## Roadmap
+
+1. **Android MVP, offline** (now)
+2. **Accounts + sync**, then the web app (Kotlin/Wasm) and a Chrome extension, on an AWS serverless backend (Lambda, API Gateway, DynamoDB, Cognito) defined with CDK
+3. **Smart layer**: screenshot capture with on-device OCR, on-device AI tag suggestions (Gemini Nano), semantic search, reminders
+4. **iOS and desktop**
+
+Plans live in [docs/plans/](docs/plans/), for example [screenshots + OCR](docs/plans/screenshots-android-v1.md).
