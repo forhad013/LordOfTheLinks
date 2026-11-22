@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copy of main/ic_launcher_foreground.xml + Test ribbon. Keep the crown in sync with main. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="0.6"
+        android:scaleY="0.6"
+        android:translateX="18"
+        android:translateY="18">
+        <!-- Bookmark with crown top -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="3"
+            android:strokeLineJoin="round"
+            android:pathData="M38,36 L45,22 L53,31 L60,18 L67,31 L75,22 L82,36 L82,100 L60,85 L38,100 Z" />
+        <!-- Chain link: scale 0.5 around the bookmark centre, then rotate -45 -->
+        <group
+            android:scaleX="0.5"
+            android:scaleY="0.5"
+            android:translateX="30"
+            android:translateY="27">
+            <group
+                android:pivotX="60"
+                android:pivotY="66"
+                android:rotation="-45">
+                <path
+                    android:strokeColor="#5B3BB5"
+                    android:strokeWidth="11"
+                    android:pathData="M36,54 L56,54 A12,12 0 0,1 56,78 L36,78 A12,12 0 0,1 36,54 Z" />
+                <path
+                    android:strokeColor="#FF8A3D"
+                    android:strokeWidth="11"
+                    android:pathData="M64,54 L84,54 A12,12 0 0,1 84,78 L64,78 A12,12 0 0,1 64,54 Z" />
+            </group>
+        </group>
+    </group>
+    <!-- Test ribbon -->
+    <path
+        android:fillColor="#1F1147"
+        android:pathData="M0,70 L108,70 L108,86 L0,86 Z" />
+    <path
+        android:strokeColor="#F59E0B"
+        android:strokeWidth="2"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round"
+        android:pathData="M35.5,73 L42.5,73 M39,73 L39,83 M52.5,73 L45.5,73 L45.5,83 L52.5,83 M45.5,78 L51,78 M62.5,73 L57.5,73 Q55.5,73 55.5,75.5 Q55.5,78 58,78 L60,78 Q62.5,78 62.5,80.5 Q62.5,83 60,83 L55.5,83 M65.5,73 L72.5,73 M69,73 L69,83" />
+</vector>

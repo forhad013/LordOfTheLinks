@@ -28,6 +28,25 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    // Dev / Test / Release installs side by side; "qa" because AGP rejects flavor names starting with "test"
+    flavorDimensions += "env"
+    productFlavors {
+        create("dev") {
+            dimension = "env"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+        }
+        create("qa") {
+            dimension = "env"
+            applicationIdSuffix = ".qa"
+            versionNameSuffix = "-qa"
+            // Installable without the release keystore
+            signingConfig = signingConfigs.getByName("debug")
+        }
+        create("prod") {
+            dimension = "env"
+        }
+    }
     buildTypes {
         getByName("release") {
             isMinifyEnabled = true
