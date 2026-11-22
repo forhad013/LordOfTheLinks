@@ -86,7 +86,7 @@ jobs:
         id: lint
         run: >-
           ./gradlew --continue :app:androidApp:lintDebug :app:lintAndroidMain :bookmarks:lintAndroidMain
-          :core:design:lintAndroidMain :core:utils:lintAndroidMain
+          :core:design:lintAndroidMain :core:utils:lintAndroidMain :settings:lintAndroidMain
 
       # Every finding on the run's Summary page; the PR comment only has the counts and a link to it
       - name: Write lint report

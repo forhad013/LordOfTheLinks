@@ -30,6 +30,7 @@ include(":core:design")
 include(":core:utils")
 include(":core:model")
 include(":bookmarks")
+include(":settings")
 //include(":konsistTest")
 
 // Convention plugins (composite build)

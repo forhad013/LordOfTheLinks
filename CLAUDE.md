@@ -7,6 +7,7 @@ Kotlin Multiplatform link/bookmark manager (Android, JVM, WASM). Room KMP + SQLi
 ## Modules
 - `app/` — main KMP app, screens, view models (Android wrapper in `app/androidApp`)
 - `bookmarks/` — bookmark screens (add, addTag, addCollection, library, details, tags, collections)
+- `settings/` — Settings tab (theme, backup / restore / browser export, app version); package stays `…screens.settings`
 - `core/design/` — design system (cards, icons, textfields, selection, theme)
 - `core/utils/` — MoleculeViewModel
 - `core/model/` — domain models (`Link`, `Tag`, `Category`, …) and repository interfaces; no Room, so web can use it
