@@ -5,7 +5,7 @@ Kotlin Multiplatform link/bookmark manager (Android, JVM, WASM). Room KMP + SQLi
 **Read `claude-project/instruction.md`** — project goals, milestones, working preferences, and hard "don'ts" (no package renames, no wasmJs/extension work in milestone 1, manual deploy gates).
 
 ## Modules
-- `app/` — main KMP app, screens, view models (Android wrapper in `app/androidApp`)
+- `app/` — app shell: DI, root and tab navigation, welcome tour (Android wrapper in `app/androidApp`); feature screens live in `bookmarks/` and `settings/`
 - `bookmarks/` — bookmark screens (add, addTag, addCollection, library, details, tags, collections)
 - `settings/` — Settings tab (theme, backup / restore / browser export, app version); package stays `…screens.settings`
 - `core/design/` — design system (cards, icons, textfields, selection, theme)
