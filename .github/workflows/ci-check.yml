@@ -132,7 +132,7 @@ jobs:
       - uses: ./.github/actions/setup-build
 
       - name: Unit tests
-        run: ./gradlew :app:jvmTest :bookmarks:jvmTest :database:jvmTest --continue
+        run: ./gradlew :app:jvmTest :bookmarks:jvmTest :database:jvmTest :settings:jvmTest --continue
 
       # Full report: a "Unit test results" check on the PR with every test, passed and failed, grouped by class
       - name: Unit test report
@@ -152,7 +152,7 @@ jobs:
         if: ${{ !cancelled() && github.event_name == 'pull_request' }}
         env:
           TEST_REPORT_URL: ${{ steps.test-report.outputs.url_html }}
-        run: python3 .github/scripts/test_summary.py app/build/test-results bookmarks/build/test-results database/build/test-results > test-comment.md
+        run: python3 .github/scripts/test_summary.py app/build/test-results bookmarks/build/test-results database/build/test-results settings/build/test-results > test-comment.md
 
       - name: Post unit test comment
         if: ${{ !cancelled() && github.event_name == 'pull_request' }}
@@ -173,7 +173,7 @@ jobs:
           retention-days: 14
           if-no-files-found: ignore
 
-      # Only after green tests (Kover would re-run failing ones); merged report for app, bookmarks and database
+      # Only after green tests (Kover would re-run failing ones); merged report for app, bookmarks, database and settings
       - name: Coverage report
         run: ./gradlew koverXmlReport koverHtmlReport
 

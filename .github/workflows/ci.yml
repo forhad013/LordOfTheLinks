@@ -33,7 +33,7 @@ jobs:
         run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > release.keystore
 
       - name: Run unit tests
-        run: ./gradlew :app:jvmTest :bookmarks:jvmTest :database:jvmTest
+        run: ./gradlew :app:jvmTest :bookmarks:jvmTest :database:jvmTest :settings:jvmTest
 
       - name: Build signed AAB
         env:

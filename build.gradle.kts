@@ -39,6 +39,7 @@ dependencies {
     kover(project(":app"))
     kover(project(":bookmarks"))
     kover(project(":database"))
+    kover(project(":settings"))
 }
 
 // One detekt run over all modules' Kotlin sources (no type resolution, so no per-module setup).
