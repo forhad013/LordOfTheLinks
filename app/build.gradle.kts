@@ -59,6 +59,7 @@ kotlin {
 
                 // Bookmarks module (screens)
                 implementation(project(":bookmarks"))
+                implementation(project(":settings"))
 
                 // Domain models and repository interfaces
                 implementation(project(":core:model"))
