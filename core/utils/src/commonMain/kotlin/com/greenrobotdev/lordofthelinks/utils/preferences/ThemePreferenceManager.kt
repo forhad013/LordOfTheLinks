@@ -8,9 +8,8 @@ import com.greenrobotdev.lordofthelinks.utils.settings.createPlatformSettings
  *
  * Handles theme preference persistence
  */
-class ThemePreferenceManager {
-
-    private val settings: Settings = createPlatformSettings()
+/** [settings] is the device store by default; tests pass in-memory MapSettings. */
+class ThemePreferenceManager(private val settings: Settings = createPlatformSettings()) {
 
     companion object {
         private const val KEY_THEME_MODE = "theme_mode"

@@ -19,8 +19,8 @@ import kotlin.time.ExperimentalTime
 fun SettingsPresenter(
     events: Flow<SettingsEvent>,
     backupService: LinksBackupService,
+    themePreferences: ThemePreferenceManager = remember { ThemePreferenceManager() },
 ): SettingsState {
-    val themePreferences = remember { ThemePreferenceManager() }
     var state by remember {
         mutableStateOf(
             SettingsState(
@@ -60,8 +60,8 @@ fun SettingsPresenter(
                     pendingFile = null,
                     dataMessage = when {
                         !event.saved -> null
-                        event.isBackup -> "Backed up ${event.linkCount} links."
-                        else -> "Exported ${event.linkCount} links for browsers."
+                        event.isBackup -> "Backed up ${count(event.linkCount, "link")}."
+                        else -> "Exported ${count(event.linkCount, "link")} for browsers."
                     },
                 )
                 is SettingsEvent.Restore -> {
@@ -70,10 +70,10 @@ fun SettingsPresenter(
                     val message = runCatching { backupService.restore(text) }.fold(
                         onSuccess = { r ->
                             buildList {
-                                add(if (r.added == 1) "Added 1 link" else "Added ${r.added} links")
+                                add("Added ${count(r.added, "link")}")
                                 if (r.skipped > 0) add("skipped ${r.skipped} already saved")
-                                if (r.categoriesCreated > 0) add("created ${r.categoriesCreated} categories")
-                                if (r.tagsCreated > 0) add("created ${r.tagsCreated} tags")
+                                if (r.categoriesCreated > 0) add("created ${count(r.categoriesCreated, "category", "categories")}")
+                                if (r.tagsCreated > 0) add("created ${count(r.tagsCreated, "tag")}")
                             }.joinToString(", ") + "."
                         },
                         onFailure = { (it as? BackupReadException)?.message ?: "Couldn't restore this backup. Nothing was changed." },
@@ -85,3 +85,6 @@ fun SettingsPresenter(
     }
     return state
 }
+
+/** "1 link", "3 links". */
+private fun count(n: Int, one: String, many: String = one + "s") = "$n ${if (n == 1) one else many}"
