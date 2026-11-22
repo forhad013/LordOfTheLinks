@@ -13,7 +13,6 @@ sealed class LibraryNavRoutes : NavKey {
     // Link detail and editing
     data class LinkDetail(val linkId: String) : LibraryNavRoutes()
     data class AddLink(val initialUrl: String? = null) : LibraryNavRoutes()
-    data class NoteEditor(val noteId: String? = null) : LibraryNavRoutes()
 
     // Categories and tags management
     data object Categories : LibraryNavRoutes()
