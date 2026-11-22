@@ -106,7 +106,6 @@ fun LinkDetailScreen(
     routeKey: NavKey,
     linkId: String,
     onBack: () -> Unit,
-    @Suppress("UNUSED_PARAMETER") onNavigateToNoteEditor: (String) -> Unit = {}, // note edits inline now
 ) {
     val viewModel: LinkDetailViewModel = viewModel(key = routeKey.toString()) { LinkDetailViewModel(linkId) }
     val state by viewModel.models.collectAsState()

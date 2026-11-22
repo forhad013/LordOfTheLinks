@@ -17,7 +17,6 @@ import androidx.navigation3.ui.NavDisplay
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.AddLinkScreen
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.details.LinkDetailScreen
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.LibraryScreen
-import com.greenrobotdev.lordofthelinks.screens.notes.NoteEditorScreen
 import com.greenrobotdev.lordofthelinks.screens.root.DetailPanePlaceholder
 import com.greenrobotdev.lordofthelinks.screens.root.TabNavigator
 
@@ -53,7 +52,7 @@ fun LibraryTabNavigation(
             sceneStrategies = listOf(listDetailStrategy),
             entryProvider = { route ->
                 // Pane metadata drives the list-detail scaffold: Feed = list, details = detail.
-                // Routes without metadata (AddLink, NoteEditor) fall through to single-pane.
+                // Routes without metadata (AddLink) fall through to single-pane.
                 val paneMetadata = when (route) {
                     is LibraryNavRoutes.LibraryBase -> ListDetailSceneStrategy.listPane(
                         detailPlaceholder = { DetailPanePlaceholder(onAddLink = { onAddLink(null) }) }
@@ -109,9 +108,6 @@ private fun LibraryTabEntry(
             routeKey = route,
             linkId = route.linkId,
             onBack = { tabNavigator.goBack() },
-            onNavigateToNoteEditor = { linkId ->
-                tabNavigator.navigate(LibraryNavRoutes.NoteEditor(null))
-            }
         )
 
         // Add Link Screen
@@ -124,13 +120,6 @@ private fun LibraryTabEntry(
                 tabNavigator.goBack()
                 tabNavigator.navigate(LibraryNavRoutes.LinkDetail(linkId))
             },
-        )
-
-        // Note Editor Screen
-        is LibraryNavRoutes.NoteEditor -> NoteEditorScreen(
-            routeKey = route,
-            noteId = route.noteId,
-            onBack = { tabNavigator.goBack() }
         )
 
         else -> error("Unknown library route: $route")
