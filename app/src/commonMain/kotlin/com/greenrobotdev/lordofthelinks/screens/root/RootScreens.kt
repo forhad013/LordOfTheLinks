@@ -17,6 +17,10 @@ sealed class RootScreens : NavKey {
     @Serializable
     data object LibraryTab : RootScreens()
 
+    // Reminders Tab - links with reminders grouped by urgency
+    @Serializable
+    data object RemindersTab : RootScreens()
+
     // Settings Tab
     @Serializable
     data object SettingsTab : RootScreens()

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -21,7 +20,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.greenrobotdev.lordofthelinks.model.Link
 import com.greenrobotdev.lordofthelinks.model.Tag
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.ModernLinkCard
 import com.greenrobotdev.lordofthelinks.design.theme.AppTheme
 import com.greenrobotdev.lordofthelinks.design.components.advanced.TagChipsSelector
 import com.greenrobotdev.lordofthelinks.design.components.advanced.TagChip
@@ -128,15 +126,6 @@ fun LinkCardsPreview() {
                     onBookmarkClick = {}
                 )
 
-                // Modern Library Card
-                Text(
-                    text = "Modern Library Card",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                ModernLinkCard(
-                    link = sampleLinks[0],
-                    onClick = {}
-                )
             }
         }
     }
@@ -392,10 +381,6 @@ fun DarkModePreview() {
                     )
                 }
 
-                ModernLinkCard(
-                    link = sampleLinks[0],
-                    onClick = {}
-                )
             }
         }
     }

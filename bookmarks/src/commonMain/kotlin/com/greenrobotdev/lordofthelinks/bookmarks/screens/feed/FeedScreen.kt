@@ -1,0 +1,376 @@
+package com.greenrobotdev.lordofthelinks.bookmarks.screens.feed
+
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.feed.components.AllCaughtUpCard
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.feed.components.AllSavesHeader
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.feed.components.FeedFilterSheet
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.feed.components.FeedHeader
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.feed.components.FirstLaunchEmptyState
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.feed.components.NothingNewCard
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.feed.components.PickUpStrip
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.feed.components.ResurfaceCard
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.feed.components.SelectedFilterChip
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.feed.components.rememberCollapsingHeaderState
+import com.greenrobotdev.lordofthelinks.bookmarks.components.link.FeedLinkCard
+import com.greenrobotdev.lordofthelinks.bookmarks.components.link.FeedSectionHeader
+import com.greenrobotdev.lordofthelinks.bookmarks.components.link.SwipeableFeedCard
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.feed.feedSection
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.feed.resurfaceLabel
+import kotlinx.coroutines.delay
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
+import com.greenrobotdev.lordofthelinks.design.motion.AppMotion
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.AnimatedContent
+import com.greenrobotdev.lordofthelinks.design.components.layout.AppLazyColumn
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
+import com.greenrobotdev.lordofthelinks.design.components.emptystate.EmptyState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.platform.LocalUriHandler
+import com.greenrobotdev.lordofthelinks.design.components.textfield.SearchField
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.AlertDialog
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation3.runtime.NavKey
+import com.greenrobotdev.lordofthelinks.model.Link
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+
+/**
+ * Enhanced Library Screen - Material 3 Expressive Design matching lords_of_links_library HTML
+ *
+ * Features:
+ * - Desktop Side Navigation (hidden on mobile)
+ * - Top App Bar with account/settings actions
+ * - Sticky Search and Filters Section with filter chips
+ * - Responsive Grid Layout (1/2/3 columns based on screen size)
+ * - Modern Link Cards with hero images and hover effects
+ * - Mobile Bottom Navigation and FAB
+ * - Material 3 Expressive animations and spring physics
+ */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+fun FeedScreen(
+    routeKey: NavKey,
+    onNavigateToDetail: (String) -> Unit,
+    onAddLink: (String?) -> Unit,
+    onNavigateToCategories: () -> Unit = {},
+    onNavigateToTags: () -> Unit = {}
+) {
+    val viewModel: FeedViewModel = viewModel(key = routeKey.toString()) { FeedViewModel() }
+    val state by viewModel.models.collectAsState()
+    val uriHandler = LocalUriHandler.current
+
+    var showFilters by remember { mutableStateOf(false) }
+    if (showFilters) {
+        FeedFilterSheet(
+            state = state,
+            onApply = { viewModel.take(FeedEvent.ApplyFilters(it)) },
+            onDismiss = { showFilters = false },
+        )
+    }
+
+    val firstLaunch = !state.isLoading && state.links.isEmpty()
+    if (firstLaunch) {
+        FirstLaunchEmptyState(onAddLink = onAddLink, modifier = Modifier.background(MaterialTheme.colorScheme.background))
+        return
+    }
+
+    val links = state.filteredLinks
+    @OptIn(ExperimentalTime::class)
+    val nowMs = remember { Clock.System.now().toEpochMilliseconds() }
+    // Starts on a different old save each day; "Show another" steps through the rest
+    var resurfaceIndex by rememberSaveable { mutableIntStateOf((nowMs / (24 * 60 * 60 * 1000L)).toInt()) }
+    val pickedCategories = state.categories.filter { it.id in state.filters.categoryIds }
+    val pickedTags = state.tags.filter { it.id in state.filters.tagIds }
+
+    val snackbar = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    // Runs a quick action on [link] and offers Undo, which writes the link back as it was
+    fun undoable(message: String, link: Link, event: FeedEvent) {
+        viewModel.take(event)
+        scope.launch {
+            snackbar.currentSnackbarData?.dismiss()
+            val result = snackbar.showSnackbar(message, actionLabel = "Undo", duration = SnackbarDuration.Short)
+            if (result == SnackbarResult.ActionPerformed) viewModel.take(FeedEvent.Restore(link))
+        }
+    }
+
+    // Delete can't be undone, so the left swipe asks first
+    var pendingDelete by remember { mutableStateOf<Link?>(null) }
+    pendingDelete?.let { link ->
+        AlertDialog(
+            onDismissRequest = { pendingDelete = null },
+            title = { Text("Delete this link?") },
+            text = { Text("It is removed with its note, tags and category. This can't be undone.") },
+            confirmButton = {
+                TextButton(onClick = { pendingDelete = null; viewModel.take(FeedEvent.Delete(link.id)) }) {
+                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = { TextButton(onClick = { pendingDelete = null }) { Text("Cancel") } },
+        )
+    }
+
+    // "All caught up" is a moment, not a state: celebrate only when unopened saves go from 1+ to 0
+    // while the app is in use without links being deleted (opening, Mark as opened, archiving).
+    // A restore or a later visit with nothing unopened gets the calm "Nothing new" instead.
+    // The celebration shows for a few seconds, then folds away for the rest of the session
+    var caughtUpDismissed by rememberSaveable { mutableStateOf(false) }
+    var celebrate by rememberSaveable { mutableStateOf(false) }
+    var lastUnopened by rememberSaveable { mutableStateOf(-1) }
+    var lastLinkCount by rememberSaveable { mutableStateOf(-1) }
+    val unopenedCount = state.unopenedLinks.size
+    LaunchedEffect(state.isLoading, unopenedCount, state.links.size) {
+        if (state.isLoading) return@LaunchedEffect
+        celebrate = celebrateCaughtUp(celebrate, lastUnopened, lastLinkCount, unopenedCount, state.links.size)
+        if (unopenedCount > 0) caughtUpDismissed = false // a new unopened save resets the celebration
+        lastUnopened = unopenedCount
+        lastLinkCount = state.links.size
+    }
+    // Decided in this frame too, so the calm card never flashes before the celebration
+    val celebrateNow = !state.isLoading &&
+        celebrateCaughtUp(celebrate, lastUnopened, lastLinkCount, unopenedCount, state.links.size)
+    val showCelebration = celebrateNow && !caughtUpDismissed
+    // Height of the pick-up row, so the celebration replacing it keeps the same height (no jump)
+    var pickUpHeightPx by rememberSaveable { mutableIntStateOf(0) }
+    val density = LocalDensity.current
+
+    // Scrolling the list collapses the title first; it comes back once the list is at the top
+    val header = rememberCollapsingHeaderState()
+    Box(Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .nestedScroll(header.nestedScroll),
+        ) {
+            // Fixed top: title, then search across the full width (it covers everything, not just the list)
+            Column(
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                FeedHeader(opened = state.inboxOpened, total = state.inboxTotal, celebrate = showCelebration, collapse = { header.fraction })
+                SearchField(
+                    query = state.searchQuery,
+                    onQueryChange = { viewModel.take(FeedEvent.SearchChanged(it)) },
+                    placeholder = "Search everything you saved",
+                    shape = CircleShape,
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+            HorizontalDivider(Modifier.padding(top = 12.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+            // Filters sits right above the list it changes, with the picked chips under them
+            val allSavesHeader: @Composable (Modifier) -> Unit = { modifier ->
+                AllSavesHeader(
+                    activeFilters = state.filters.activeCount,
+                    onFilters = { showFilters = true },
+                    modifier = modifier,
+                ) {
+                    // Only the picked categories and tags show here; everything else lives in the Filters sheet
+                    if (pickedCategories.isNotEmpty() || pickedTags.isNotEmpty()) {
+                        // Wraps instead of scrolling: a tap on a scrolled row is eaten while the scroll/overscroll
+                        // settles, so chips at the far end could not be removed. Every chip stays on screen.
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            pickedCategories.forEach { category ->
+                                key("c-" + category.id) {
+                                    SelectedFilterChip(
+                                        text = category.path(state.categories),
+                                        isTag = false,
+                                        onRemove = { viewModel.take(FeedEvent.RemoveCategory(category.id)) },
+                                    )
+                                }
+                            }
+                            pickedTags.forEach { tag ->
+                                key("t-" + tag.id) {
+                                    SelectedFilterChip(
+                                        text = "#${tag.name}",
+                                        isTag = true,
+                                        onRemove = { viewModel.take(FeedEvent.RemoveTag(tag.id)) },
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (links.isEmpty()) {
+                allSavesHeader(Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp))
+                EmptyState(
+                    title = "Nothing here",
+                    description = "No saved link matches these filters.",
+                    icon = Icons.Default.Search,
+                    actionLabel = "Clear filters",
+                    onActionClick = { viewModel.take(FeedEvent.ClearFilters) },
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                )
+            } else {
+                AppLazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 96.dp), // room for the FAB
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    // Discovery steps aside while searching or filtering, so it never mixes with narrowed results
+                    val unopened = state.unopenedLinks
+                    val discover = state.searchQuery.isBlank() && state.filters.activeCount == 0
+                    // One slot that morphs between the pick-up row, the celebration and the calm card,
+                    // so clearing the last unopened save is a transition, not a cut
+                    if (discover && state.inboxTotal > 0) {
+                        val slot = when {
+                            unopened.isNotEmpty() -> TopSlot.PickUp
+                            showCelebration -> TopSlot.CaughtUp
+                            caughtUpDismissed -> TopSlot.Hidden
+                            else -> TopSlot.NothingNew
+                        }
+                        item(key = "top-slot") {
+                            // Read here: motion specs come from the theme, transitionSpec isn't composable
+                            val fadeInSpec = AppMotion.effects<Float>()
+                            val fadeOutSpec = AppMotion.effectsFast<Float>()
+                            val scaleInSpec = AppMotion.spatial<Float>()
+                            val scaleOutSpec = AppMotion.spatialFast<Float>()
+                            val sizeSpec = AppMotion.spatial<androidx.compose.ui.unit.IntSize>()
+                            AnimatedContent(
+                                targetState = slot,
+                                transitionSpec = {
+                                    (fadeIn(fadeInSpec) + scaleIn(scaleInSpec, initialScale = 0.92f)) togetherWith
+                                        (fadeOut(fadeOutSpec) + scaleOut(scaleOutSpec, targetScale = 0.96f)) using
+                                        SizeTransform(clip = false) { _, _ -> sizeSpec }
+                                },
+                                modifier = Modifier.animateItem(),
+                                label = "feed top slot",
+                            ) { target ->
+                                when (target) {
+                                    TopSlot.PickUp -> PickUpStrip(
+                                        links = unopened.take(PICK_UP_COUNT),
+                                        unopenedCount = unopened.size,
+                                        onOpen = { link ->
+                                            runCatching { uriHandler.openUri(link.url) }
+                                            viewModel.take(FeedEvent.Opened(link.id))
+                                        },
+                                        onMarkOpened = { link -> undoable("Marked as opened", link, FeedEvent.Opened(link.id)) },
+                                        modifier = Modifier.onSizeChanged { pickUpHeightPx = it.height },
+                                    )
+                                    TopSlot.CaughtUp -> {
+                                        LaunchedEffect(Unit) {
+                                            delay(CAUGHT_UP_SHOWN_MS)
+                                            caughtUpDismissed = true
+                                        }
+                                        AllCaughtUpCard(Modifier.heightIn(min = with(density) { pickUpHeightPx.toDp() }))
+                                    }
+                                    TopSlot.NothingNew -> NothingNewCard()
+                                    // Collapses to nothing; the height change is animated by SizeTransform
+                                    TopSlot.Hidden -> Spacer(Modifier.fillMaxWidth())
+                                }
+                            }
+                        }
+                    }
+                    val candidates = state.resurfaceCandidates(nowMs)
+                    if (discover && candidates.isNotEmpty()) {
+                        val link = candidates[resurfaceIndex.mod(candidates.size)]
+                        item(key = "resurface") {
+                            ResurfaceCard(
+                                link = link,
+                                label = resurfaceLabel(link.createdAt, nowMs),
+                                categoryPath = state.categoryOf(link)?.path(state.categories),
+                                onOpen = {
+                                    runCatching { uriHandler.openUri(link.url) }
+                                    viewModel.take(FeedEvent.Opened(link.id))
+                                },
+                                onArchive = { undoable("Link archived", link, FeedEvent.Archive(link.id)) },
+                                onShowAnother = if (candidates.size > 1) ({ resurfaceIndex++ }) else null,
+                                modifier = Modifier.animateItem(),
+                            )
+                        }
+                    }
+                    // Sticky, so Filters stays reachable however far the list is scrolled
+                    stickyHeader(key = "all-saves") {
+                        allSavesHeader(Modifier.background(MaterialTheme.colorScheme.background).padding(vertical = 8.dp))
+                    }
+                    // Sorted by date either way, so each section is one consecutive run
+                    links.groupBy { feedSection(it.createdAt) }.forEach { (section, sectionLinks) ->
+                        item(key = "section-$section") { FeedSectionHeader(section, Modifier.animateItem()) }
+                        items(sectionLinks, key = { it.id }) { link ->
+                            SwipeableFeedCard(
+                                link = link,
+                                onArchive = { undoable("Link archived", link, FeedEvent.Archive(link.id)) },
+                                onRequestDelete = { pendingDelete = link },
+                                modifier = Modifier.animateItem(),
+                            ) {
+                                FeedLinkCard(
+                                    link = link,
+                                    categoryPath = state.categoryOf(link)?.path(state.categories),
+                                    onOpen = {
+                                        runCatching { uriHandler.openUri(link.url) }
+                                        viewModel.take(FeedEvent.Opened(link.id))
+                                    },
+                                    onDetails = { onNavigateToDetail(link.id) },
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // Above the Add link button
+        SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).padding(start = 16.dp, end = 16.dp, bottom = 88.dp))
+    }
+}
+
+/** What sits above the resurfacing card: the pick-up row, the celebration, the calm card, or nothing. */
+private enum class TopSlot { PickUp, CaughtUp, NothingNew, Hidden }
+
+/** How long "All caught up" stays before folding away. */
+private const val CAUGHT_UP_SHOWN_MS = 5_000L

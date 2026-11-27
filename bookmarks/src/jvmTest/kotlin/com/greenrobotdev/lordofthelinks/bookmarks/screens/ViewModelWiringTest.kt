@@ -1,5 +1,7 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens
 
+import com.greenrobotdev.lordofthelinks.bookmarks.data.provider.HtmlLinkMetadataProvider
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.provider.LinkMetadataProvider
 import com.greenrobotdev.lordofthelinks.testing.FakeCategoryRepository
 import com.greenrobotdev.lordofthelinks.testing.FakeLinkRepository
 import com.greenrobotdev.lordofthelinks.testing.FakeTagRepository
@@ -9,12 +11,11 @@ import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.Categor
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.CategoryPickerViewModel
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.details.LinkDetailEvent
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.details.LinkDetailViewModel
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.LibraryTabViewModel
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.LibraryViewModel
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.saved.SavedListEvent
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.saved.SavedListViewModel
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.tagPicker.TagPickerEvent
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.tagPicker.TagPickerViewModel
-import com.greenrobotdev.lordofthelinks.bookmarks.service.MetadataFetchService
 import com.greenrobotdev.lordofthelinks.model.Category
 import com.greenrobotdev.lordofthelinks.model.Link
 import com.greenrobotdev.lordofthelinks.model.SmartListCounts
@@ -82,7 +83,7 @@ class ViewModelWiringTest {
                 single<LinkRepository> { links }
                 single<CategoryRepository> { categories }
                 single<TagRepository> { tags }
-                single { MetadataFetchService(HttpClient(MockEngine { respondError(HttpStatusCode.NotFound) })) }
+                single<LinkMetadataProvider> { HtmlLinkMetadataProvider(HttpClient(MockEngine { respondError(HttpStatusCode.NotFound) })) }
             })
         }
     }
@@ -156,7 +157,7 @@ class ViewModelWiringTest {
         categories.smartListCounts.value = SmartListCounts(unopened = 3, favorites = 2, archived = 1, uncategorized = 4)
         categories.linkCategories.value = mapOf("a" to "dev")
 
-        val state = start(LibraryTabViewModel()).models.value
+        val state = start(LibraryViewModel()).models.value
 
         assertEquals(listOf(3, 2, 1, 4), listOf(state.unopenedCount, state.favoritesCount, state.archivedCount, state.uncategorizedCount))
         assertEquals(1, state.categories.single().count)
@@ -165,7 +166,7 @@ class ViewModelWiringTest {
 
     @Test
     fun libraryTabFollowsChanges() = test {
-        val viewModel = start(LibraryTabViewModel())
+        val viewModel = start(LibraryViewModel())
 
         categories.smartListCounts.value = SmartListCounts(unopened = 7, favorites = 0, archived = 0, uncategorized = 0)
         tags.tags.value = emptyList()

@@ -1,6 +1,6 @@
 package com.greenrobotdev.lordofthelinks.screens.settings
 
-import com.greenrobotdev.lordofthelinks.bookmarks.backup.ExportedFile
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.manager.ExportedFile
 import kotlinx.serialization.Serializable
 
 /**

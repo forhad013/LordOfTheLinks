@@ -1,5 +1,7 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker
 
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.DeletePhase
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.category.MAX_CATEGORY_DEPTH
 import com.greenrobotdev.lordofthelinks.testing.FAILURE
 import com.greenrobotdev.lordofthelinks.testing.FakeCategoryRepository
 import com.greenrobotdev.lordofthelinks.testing.present

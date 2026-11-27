@@ -1,7 +1,7 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.add
 
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.provider.LinkMetadataProvider
 import androidx.compose.runtime.Composable
-import com.greenrobotdev.lordofthelinks.bookmarks.service.MetadataFetchService
 import com.greenrobotdev.lordofthelinks.model.repository.CategoryRepository
 import com.greenrobotdev.lordofthelinks.model.repository.LinkRepository
 import com.greenrobotdev.lordofthelinks.model.repository.TagRepository
@@ -17,7 +17,7 @@ class AddLinkViewModel(
     private val linkRepository: LinkRepository by inject()
     private val tagRepository: TagRepository by inject()
     private val categoryRepository: CategoryRepository by inject()
-    private val metadataFetchService: MetadataFetchService by inject()
+    private val metadataProvider: LinkMetadataProvider by inject()
 
     
     @Composable
@@ -28,7 +28,7 @@ class AddLinkViewModel(
             linkRepository = linkRepository,
             tagRepository = tagRepository,
             categoryRepository = categoryRepository,
-            metadataFetchService = metadataFetchService,
+            metadataProvider = metadataProvider,
             initialUrl = initialUrl
         )
     }

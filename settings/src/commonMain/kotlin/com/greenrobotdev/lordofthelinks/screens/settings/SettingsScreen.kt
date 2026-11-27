@@ -1,5 +1,8 @@
 package com.greenrobotdev.lordofthelinks.screens.settings
 
+import com.greenrobotdev.lordofthelinks.screens.settings.platform.rememberAppVersion
+import com.greenrobotdev.lordofthelinks.screens.settings.platform.rememberTextFileOpener
+import com.greenrobotdev.lordofthelinks.screens.settings.platform.rememberTextFileSaver
 import com.greenrobotdev.lordofthelinks.design.theme.ComponentStyle
 import com.greenrobotdev.lordofthelinks.design.components.button.TextButton
 import androidx.compose.material.icons.filled.Restore

@@ -1,5 +1,6 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.add.sheet
 
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.WebLinkHandler
 import com.greenrobotdev.lordofthelinks.design.components.layout.appVerticalScroll
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -45,7 +46,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.greenrobotdev.lordofthelinks.bookmarks.domain.isValidLink
 import com.greenrobotdev.lordofthelinks.design.components.button.StandardButton
 import com.greenrobotdev.lordofthelinks.design.components.textfield.AppTextFieldEnhanced
 import com.greenrobotdev.lordofthelinks.design.foundation.icon.AppIcon
@@ -65,7 +65,7 @@ fun AddLinkSheet(
     // Read the clipboard once, not per recomposition (Android 12+ shows a system toast per read)
     val clipboardManager = LocalClipboardManager.current
     val clipboardUrl = remember(clipboardManager) {
-        clipboardManager.getText()?.text?.takeIf { isValidLink(it) }
+        clipboardManager.getText()?.text?.takeIf { WebLinkHandler.isValid(it) }
     }
     val viewModel = remember { AddLinkSheetViewModel(clipboardUrl, initialUrl) }
     val state by viewModel.models.collectAsState()
