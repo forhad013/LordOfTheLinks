@@ -2,7 +2,6 @@ package com.greenrobotdev.lordofthelinks.bookmarks.screens.add.sheet
 
 import com.greenrobotdev.lordofthelinks.bookmarks.domain.WebLinkHandler
 
-
 data class AddLinkSheetState(
     val url: String = "",
     val clipboardUrl: String? = null,

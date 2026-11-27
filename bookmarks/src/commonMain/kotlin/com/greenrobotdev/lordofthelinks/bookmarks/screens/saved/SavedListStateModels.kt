@@ -1,5 +1,8 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.saved
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.flow.first
 import com.greenrobotdev.lordofthelinks.model.Category
 import com.greenrobotdev.lordofthelinks.model.Link
 import com.greenrobotdev.lordofthelinks.bookmarks.domain.category.subtreeIds
@@ -69,4 +72,24 @@ fun SavedScope.emptyMessage(): Pair<String, String> = when (this) {
     SavedScope.Reminders -> "No reminders" to "Set a reminder on a link's details to revisit it later."
     is SavedScope.InCategory -> "Nothing here yet" to "Links you put in this category show up here."
     is SavedScope.WithTag -> "Nothing tagged yet" to "Links with this tag show up here."
+}
+
+data class SavedListState(
+    val isLoading: Boolean = true,
+    val links: List<Link> = emptyList(),
+    val categories: List<Category> = emptyList(),
+    /** linkId → categoryId */
+    val linkCategoryIds: Map<String, String> = emptyMap(),
+    val categoryTagNames: Map<String, Set<String>> = emptyMap(),
+) {
+    fun visible(scope: SavedScope): List<Link> = savedInScope(scope, links, categories, linkCategoryIds, categoryTagNames)
+    fun categoryOf(link: Link): Category? = linkCategoryIds[link.id]?.let { id -> categories.firstOrNull { it.id == id } }
+}
+
+sealed interface SavedListEvent {
+    data class Opened(val linkId: String) : SavedListEvent
+    data class Archive(val linkId: String) : SavedListEvent
+    data class Delete(val linkId: String) : SavedListEvent
+    /** Undo: write the link back as it was before the last action. */
+    data class Restore(val link: Link) : SavedListEvent
 }
