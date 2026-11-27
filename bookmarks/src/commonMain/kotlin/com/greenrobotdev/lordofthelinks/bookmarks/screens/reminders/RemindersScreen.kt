@@ -1,5 +1,7 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.reminders
 
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.reminder.reminderSection
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.WebLinkHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -33,7 +35,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,8 +46,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.greenrobotdev.lordofthelinks.bookmarks.domain.hostOf
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.reminderLabel
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.reminderLabel
 import com.greenrobotdev.lordofthelinks.design.components.layout.AppLazyColumn
 import com.greenrobotdev.lordofthelinks.design.foundation.icon.AppIcon
 import com.greenrobotdev.lordofthelinks.model.Link
@@ -256,7 +256,7 @@ private fun ReminderRow(
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                hostOf(link.url),
+                WebLinkHandler.hostOf(link.url),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,

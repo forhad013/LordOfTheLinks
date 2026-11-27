@@ -30,8 +30,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.CreateRow
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.DELETE_UNDO_MS
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.DeletePhase
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.DELETE_UNDO_MS
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.DeletePhase
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.ImpactCard
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.InlineTreeField
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.SelectableRow

@@ -58,7 +58,7 @@ import com.greenrobotdev.lordofthelinks.bookmarks.motion.sharedScope
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.FeedLinkCard
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.FeedSectionHeader
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.SwipeableFeedCard
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.feedSection
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.feed.feedSection
 import com.greenrobotdev.lordofthelinks.design.components.layout.AppLazyColumn
 import com.greenrobotdev.lordofthelinks.design.components.layout.AppLazyRow
 import com.greenrobotdev.lordofthelinks.design.foundation.icon.AppIcon

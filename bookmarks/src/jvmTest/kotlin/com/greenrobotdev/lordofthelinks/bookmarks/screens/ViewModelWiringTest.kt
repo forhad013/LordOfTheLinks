@@ -1,5 +1,7 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens
 
+import com.greenrobotdev.lordofthelinks.bookmarks.data.provider.HtmlLinkMetadataProvider
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.provider.LinkMetadataProvider
 import com.greenrobotdev.lordofthelinks.testing.FakeCategoryRepository
 import com.greenrobotdev.lordofthelinks.testing.FakeLinkRepository
 import com.greenrobotdev.lordofthelinks.testing.FakeTagRepository
@@ -14,7 +16,6 @@ import com.greenrobotdev.lordofthelinks.bookmarks.screens.saved.SavedListEvent
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.saved.SavedListViewModel
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.tagPicker.TagPickerEvent
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.tagPicker.TagPickerViewModel
-import com.greenrobotdev.lordofthelinks.bookmarks.service.MetadataFetchService
 import com.greenrobotdev.lordofthelinks.model.Category
 import com.greenrobotdev.lordofthelinks.model.Link
 import com.greenrobotdev.lordofthelinks.model.SmartListCounts
@@ -82,7 +83,7 @@ class ViewModelWiringTest {
                 single<LinkRepository> { links }
                 single<CategoryRepository> { categories }
                 single<TagRepository> { tags }
-                single { MetadataFetchService(HttpClient(MockEngine { respondError(HttpStatusCode.NotFound) })) }
+                single<LinkMetadataProvider> { HtmlLinkMetadataProvider(HttpClient(MockEngine { respondError(HttpStatusCode.NotFound) })) }
             })
         }
     }

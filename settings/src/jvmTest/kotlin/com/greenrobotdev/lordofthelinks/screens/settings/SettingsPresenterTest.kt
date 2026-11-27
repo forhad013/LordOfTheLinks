@@ -1,6 +1,6 @@
 package com.greenrobotdev.lordofthelinks.screens.settings
 
-import com.greenrobotdev.lordofthelinks.bookmarks.backup.LinksBackupService
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.manager.BackupManager
 import com.greenrobotdev.lordofthelinks.model.Category
 import com.greenrobotdev.lordofthelinks.model.Link
 import com.greenrobotdev.lordofthelinks.model.Tag
@@ -37,7 +37,7 @@ class SettingsPresenterTest {
 
     private suspend fun TestScope.open(repos: Triple<FakeLinkRepository, FakeCategoryRepository, FakeTagRepository> = library()) =
         present { events ->
-            SettingsPresenter(events, LinksBackupService(repos.first, repos.second, repos.third), ThemePreferenceManager(storage))
+            SettingsPresenter(events, BackupManager(repos.first, repos.second, repos.third), ThemePreferenceManager(storage))
         }
 
     @Test
@@ -82,7 +82,7 @@ class SettingsPresenterTest {
     fun unreadableLibraryFailsTheBackupWithoutAFile() = runTest {
         val (links, categories, tags) = library()
         val settings = present { events ->
-            SettingsPresenter(events, LinksBackupService(BrokenLinks(links), categories, tags), ThemePreferenceManager(storage))
+            SettingsPresenter(events, BackupManager(BrokenLinks(links), categories, tags), ThemePreferenceManager(storage))
         }
 
         settings.send(SettingsEvent.Backup)

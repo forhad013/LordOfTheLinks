@@ -7,8 +7,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.greenrobotdev.lordofthelinks.utils.preferences.ThemePreferenceManager
-import com.greenrobotdev.lordofthelinks.bookmarks.backup.BackupReadException
-import com.greenrobotdev.lordofthelinks.bookmarks.backup.LinksBackupService
+import com.greenrobotdev.lordofthelinks.bookmarks.data.format.BackupReadException
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.manager.BackupManager
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -18,7 +18,7 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun SettingsPresenter(
     events: Flow<SettingsEvent>,
-    backupService: LinksBackupService,
+    backupService: BackupManager,
     themePreferences: ThemePreferenceManager = remember { ThemePreferenceManager() },
 ): SettingsState {
     var state by remember {

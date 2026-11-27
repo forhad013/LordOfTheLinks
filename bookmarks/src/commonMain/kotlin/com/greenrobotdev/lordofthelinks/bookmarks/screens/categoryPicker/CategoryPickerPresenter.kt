@@ -1,5 +1,12 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker
 
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.DELETE_UNDO_MS
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.DeletePhase
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.category.MAX_CATEGORY_DEPTH
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.category.ancestorsOf
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.category.canAddChildUnder
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.category.validateCategoryName
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.feed.kind
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -13,9 +20,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-
-/** Undo window for a swiped category (ms). */
-const val DELETE_UNDO_MS = 5_000L
 
 /**
  * Category picker presenter (GRE-44): event → state reducer over the nested tree.

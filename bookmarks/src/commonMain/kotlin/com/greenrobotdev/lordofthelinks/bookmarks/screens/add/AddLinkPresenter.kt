@@ -1,5 +1,7 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.add
 
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.provider.LinkMetadataProvider
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.WebLinkHandler
 import com.greenrobotdev.lordofthelinks.design.debug.DebugLog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -7,15 +9,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.greenrobotdev.lordofthelinks.bookmarks.service.MetadataFetchService
 import com.greenrobotdev.lordofthelinks.model.repository.CategoryRepository
 import com.greenrobotdev.lordofthelinks.model.repository.LinkRepository
 import com.greenrobotdev.lordofthelinks.model.repository.TagRepository
 import com.greenrobotdev.lordofthelinks.model.Link
 import com.greenrobotdev.lordofthelinks.model.Tag
-import com.greenrobotdev.lordofthelinks.bookmarks.domain.isSameLink
-import com.greenrobotdev.lordofthelinks.bookmarks.domain.isValidLink
-import com.greenrobotdev.lordofthelinks.bookmarks.domain.linkTypeOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import org.koin.compose.koinInject
@@ -32,7 +30,7 @@ fun AddLinkPresenter(
     linkRepository: LinkRepository,
     tagRepository: TagRepository = koinInject(),
     categoryRepository: CategoryRepository = koinInject(),
-    metadataFetchService: MetadataFetchService = koinInject(),
+    metadataProvider: LinkMetadataProvider = koinInject(),
     initialUrl: String?
 ): AddLinkState {
     var state by remember { mutableStateOf(initialState) }
@@ -79,7 +77,7 @@ fun AddLinkPresenter(
         url = state.url.trim(),
         description = state.notes.orEmpty(),
         isFavorite = state.isFavorite,
-        type = linkTypeOf(state.url),
+        type = WebLinkHandler.typeOf(state.url),
         fetchedDescription = state.fetchedMetadata?.description?.takeIf { it.isNotBlank() },
         createdAt = state.createdAt,
         imageUrl = state.fetchedMetadata?.let { it.imageUrl.orEmpty() }, // "": fetched, no image
@@ -93,15 +91,15 @@ fun AddLinkPresenter(
     // The existing save of [url], if any: adding it again would only make a second copy
     suspend fun existingSave(url: String): SavedDuplicate? =
         linkRepository.getLinks().first().getOrNull()
-            ?.firstOrNull { isSameLink(it.url, url) }
+            ?.firstOrNull { WebLinkHandler.isSame(it.url, url) }
             ?.let { SavedDuplicate(it.id, it.title.ifBlank { it.url }, it.createdAt) }
 
     LaunchedEffect(Unit) {
         // "Link kept": store the link before handling any event, so Save/Discard always see savedLinkId
         val url = initialUrl?.trim().orEmpty()
-        val duplicate = if (isValidLink(url)) existingSave(url) else null
+        val duplicate = if (WebLinkHandler.isValid(url)) existingSave(url) else null
         if (duplicate != null) state = state.copy(duplicate = duplicate)
-        if (duplicate == null && state.savedLinkId == null && isValidLink(url)) {
+        if (duplicate == null && state.savedLinkId == null && WebLinkHandler.isValid(url)) {
             stampCreatedAt()
             linkRepository.addLink(linkFromState(Uuid.random().toString())).first()
                 .onSuccess { state = state.copy(savedLinkId = it.id) }
@@ -192,7 +190,7 @@ fun AddLinkPresenter(
                         state = state.copy(isFetching = true, fetchError = null)
 
                         try {
-                            val result = metadataFetchService.fetchMetadata(state.url).first()
+                            val result = metadataProvider.fetchMetadata(state.url).first()
                             result.fold(
                                 onSuccess = { metadata ->
                                     // Auto-fill title from metadata (description removed)

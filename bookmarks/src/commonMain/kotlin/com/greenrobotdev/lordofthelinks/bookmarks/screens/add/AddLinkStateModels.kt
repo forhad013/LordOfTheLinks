@@ -2,7 +2,7 @@ package com.greenrobotdev.lordofthelinks.bookmarks.screens.add
 
 import com.greenrobotdev.lordofthelinks.model.Category
 import com.greenrobotdev.lordofthelinks.model.Tag
-import com.greenrobotdev.lordofthelinks.bookmarks.service.LinkMetadata
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.provider.LinkMetadata
 import kotlinx.serialization.Serializable
 
 /** The existing save of a URL being added again. */

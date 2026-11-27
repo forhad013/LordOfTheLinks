@@ -1,8 +1,9 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.add
 
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.WebLinkHandler
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.savedAtLabel
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.savedAtLabel
 import com.greenrobotdev.lordofthelinks.design.theme.ComponentStyle
 import com.greenrobotdev.lordofthelinks.design.components.button.StandardButton
 import com.greenrobotdev.lordofthelinks.design.foundation.icon.AppIcon
@@ -42,8 +43,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
-import com.greenrobotdev.lordofthelinks.bookmarks.domain.hostOf
-import com.greenrobotdev.lordofthelinks.bookmarks.domain.linkTypeOf
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.CategoryField
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.ChipRow
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.ChoiceChip
@@ -59,7 +58,7 @@ import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.Categor
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.tagPicker.TagPickerSheet
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.BrowseAllButton
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.details.ReminderPickerSheet
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.reminderLabel
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.reminderLabel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -187,8 +186,8 @@ fun AddLinkView(
                 )
             } else {
                 LinkPreviewCard(
-                    type = linkTypeOf(state.url),
-                    host = hostOf(state.url),
+                    type = WebLinkHandler.typeOf(state.url),
+                    host = WebLinkHandler.hostOf(state.url),
                     title = state.title,
                     description = state.fetchedMetadata?.description,
                     isFetching = state.isFetching,

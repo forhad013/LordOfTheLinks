@@ -1,5 +1,7 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker
 
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.DeletePhase
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.category.subtreeIds
 import com.greenrobotdev.lordofthelinks.model.Category
 import kotlinx.serialization.Serializable
 
@@ -47,10 +49,6 @@ data class CategoryPickerState(
             return subtreeIds(category.id, allCategories)
         }
 }
-
-/** Phases of the swipe/confirm delete flow. SWIPING is UI-local drag progress; state stays CONFIRM. */
-@Serializable
-enum class DeletePhase { NONE, CONFIRM, SWIPING, UNDO }
 
 /** What happens to a deleted category's children. */
 @Serializable

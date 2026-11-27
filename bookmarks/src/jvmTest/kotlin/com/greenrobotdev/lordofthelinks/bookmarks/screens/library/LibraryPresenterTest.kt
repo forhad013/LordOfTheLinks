@@ -1,11 +1,13 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.library
 
+import com.greenrobotdev.lordofthelinks.bookmarks.data.store.FeedFilterStore
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.feed.FeedFilters
+import com.greenrobotdev.lordofthelinks.bookmarks.data.provider.HtmlLinkMetadataProvider
 import com.greenrobotdev.lordofthelinks.testing.FakeCategoryRepository
 import com.greenrobotdev.lordofthelinks.testing.FakeLinkRepository
 import com.greenrobotdev.lordofthelinks.testing.FakeTagRepository
 import com.greenrobotdev.lordofthelinks.testing.present
 import com.greenrobotdev.lordofthelinks.testing.settle
-import com.greenrobotdev.lordofthelinks.bookmarks.service.MetadataFetchService
 import com.greenrobotdev.lordofthelinks.model.Category
 import com.greenrobotdev.lordofthelinks.model.Link
 import com.greenrobotdev.lordofthelinks.model.Tag
@@ -33,7 +35,7 @@ class LibraryPresenterTest {
     private val tags = FakeTagRepository(Tag(id = "t", name = "ui", count = 0))
     private val settings = MapSettings()
     private var pages: (String) -> String? = { null } // url → html; null = 404
-    private val metadata = MetadataFetchService(HttpClient(MockEngine { request ->
+    private val metadata = HtmlLinkMetadataProvider(HttpClient(MockEngine { request ->
         pages(request.url.toString())?.let { respond(it) } ?: respondError(HttpStatusCode.NotFound)
     }))
 

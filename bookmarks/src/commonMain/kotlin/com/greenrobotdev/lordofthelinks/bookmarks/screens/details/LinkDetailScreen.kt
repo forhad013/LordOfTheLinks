@@ -1,5 +1,7 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.details
 
+import com.greenrobotdev.lordofthelinks.bookmarks.platform.rememberShareLink
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.WebLinkHandler
 import com.greenrobotdev.lordofthelinks.design.components.utils.PlatformAsyncImage
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.blur
@@ -85,12 +87,11 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
-import com.greenrobotdev.lordofthelinks.bookmarks.domain.hostOf
 import com.greenrobotdev.lordofthelinks.model.Link
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.CategoryField
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.CategoryPickerSheet
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.reminderLabel
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.savedAtLabel
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.reminderLabel
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.savedAtLabel
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.tagPicker.TagPickerSheet
 import com.greenrobotdev.lordofthelinks.design.components.feedback.ErrorMessageCard
 import com.greenrobotdev.lordofthelinks.design.components.layout.AppActionBar
@@ -211,7 +212,7 @@ fun LinkDetailScreen(
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     TypeChip(type = link.type, onPick = { viewModel.take(LinkDetailEvent.SetType(it)) })
                     Text(
-                        hostOf(link.url),
+                        WebLinkHandler.hostOf(link.url),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,

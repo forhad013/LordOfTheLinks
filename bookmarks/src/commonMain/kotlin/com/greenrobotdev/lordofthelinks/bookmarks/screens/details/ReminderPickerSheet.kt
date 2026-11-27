@@ -1,5 +1,6 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.details
 
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.reminder.reminderPickerStart
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -39,7 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.reminderLabel
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.reminderLabel
 import com.greenrobotdev.lordofthelinks.design.foundation.icon.AppIcon
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -218,13 +219,6 @@ fun ReminderPickerSheet(
             }
         }
     }
-}
-
-/** The previous reminder if it is still ahead, otherwise one hour from now. */
-@OptIn(ExperimentalTime::class)
-internal fun reminderPickerStart(currentReminderAt: Long?, nowMs: Long, zone: TimeZone): LocalDateTime {
-    val ms = currentReminderAt?.takeIf { it > nowMs } ?: (nowMs + 3600_000L)
-    return Instant.fromEpochMilliseconds(ms).toLocalDateTime(zone)
 }
 
 @Composable

@@ -12,7 +12,7 @@ class IsValidLinkTest {
             "http://example.com/path?query=1",
             "HTTPS://EXAMPLE.COM",
             "http://a.co",
-        ).forEach { assertEquals(true, isValidLink(it), it) }
+        ).forEach { assertEquals(true, WebLinkHandler.isValid(it), it) }
     }
 
     @Test
@@ -24,6 +24,6 @@ class IsValidLinkTest {
             "ftp://example.com",
             "https://",
             "https:// space",
-        ).forEach { assertEquals(false, isValidLink(it), it) }
+        ).forEach { assertEquals(false, WebLinkHandler.isValid(it), it) }
     }
 }

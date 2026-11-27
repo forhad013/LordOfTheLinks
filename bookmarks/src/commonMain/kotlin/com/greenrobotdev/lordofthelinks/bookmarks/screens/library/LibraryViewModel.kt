@@ -1,13 +1,15 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.library
 
+import com.greenrobotdev.lordofthelinks.bookmarks.data.store.FeedFilterStore
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.feed.FeedFilters
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.provider.LinkMetadataProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.greenrobotdev.lordofthelinks.bookmarks.service.HttpStatusException
-import com.greenrobotdev.lordofthelinks.bookmarks.service.MetadataFetchService
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.provider.HttpStatusException
 import com.greenrobotdev.lordofthelinks.model.repository.CategoryRepository
 import com.greenrobotdev.lordofthelinks.model.repository.LinkRepository
 import com.greenrobotdev.lordofthelinks.model.repository.TagRepository
@@ -22,12 +24,12 @@ class LibraryViewModel : MoleculeViewModel<LibraryEvent, LibraryState>(), KoinCo
     private val linkRepository: LinkRepository by inject()
     private val categoryRepository: CategoryRepository by inject()
     private val tagRepository: TagRepository by inject()
-    private val metadataFetchService: MetadataFetchService by inject()
+    private val metadataProvider: LinkMetadataProvider by inject()
     private val filterStore = FeedFilterStore()
 
     @Composable
     override fun models(events: Flow<LibraryEvent>): LibraryState =
-        LibraryPresenter(events, linkRepository, categoryRepository, tagRepository, filterStore, metadataFetchService)
+        LibraryPresenter(events, linkRepository, categoryRepository, tagRepository, filterStore, metadataProvider)
 
     override fun initialValue(): LibraryState = LibraryState()
 }
@@ -40,7 +42,7 @@ fun LibraryPresenter(
     categoryRepository: CategoryRepository,
     tagRepository: TagRepository,
     filterStore: FeedFilterStore,
-    metadataFetchService: MetadataFetchService,
+    metadataProvider: LinkMetadataProvider,
 ): LibraryState {
     var state by remember { mutableStateOf(LibraryState(filters = filterStore.load())) }
 
@@ -58,7 +60,7 @@ fun LibraryPresenter(
     LaunchedEffect(Unit) {
         val missing = linkRepository.getLinks().first().getOrNull().orEmpty().filter { it.imageUrl == null }
         for (link in missing) {
-            metadataFetchService.fetchMetadata(link.url).first()
+            metadataProvider.fetchMetadata(link.url).first()
                 .onSuccess { metadata -> linkRepository.setImageUrl(link.id, metadata.imageUrl.orEmpty()).first() }
                 // The site refuses us (Facebook answers 400): record "no image" instead of asking on every launch
                 .onFailure { if (it is HttpStatusException) linkRepository.setImageUrl(link.id, "").first() }

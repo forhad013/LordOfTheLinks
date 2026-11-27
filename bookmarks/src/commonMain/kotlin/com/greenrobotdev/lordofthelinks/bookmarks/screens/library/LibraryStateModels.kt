@@ -1,54 +1,16 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.library
 
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.feed.FeedFilters
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.feed.OpenedFilter
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.feed.kind
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.feed.startMs
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.saved.title
 import com.greenrobotdev.lordofthelinks.model.Category
 import com.greenrobotdev.lordofthelinks.model.Link
 import com.greenrobotdev.lordofthelinks.model.Tag
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.subtreeIds
-import kotlinx.datetime.DatePeriod
-import kotlinx.serialization.Serializable
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atStartOfDayIn
-import kotlinx.datetime.isoDayNumber
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.category.subtreeIds
 import kotlinx.datetime.minus
-import kotlinx.datetime.toLocalDateTime
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
-
-/** ARCHIVED = only archived links, opened or not. */
-@Serializable
-enum class OpenedFilter(val label: String) { ALL("All"), UNOPENED("Unopened"), OPENED("Opened"), ARCHIVED("Archived") }
-
-/** Link kinds the Type section offers; NO_PREVIEW = no title fetched yet. */
-@Serializable
-enum class LinkKind(val label: String) { ARTICLE("Articles"), VIDEO("Videos"), SOCIAL("Social"), NO_PREVIEW("No preview") }
-
-@Serializable
-enum class SavedRange(val label: String) { ANY("Any time"), TODAY("Today"), THIS_WEEK("This week"), THIS_MONTH("This month") }
-
-/** Everything the Filters sheet sets. Default = no filtering (archived hidden). */
-@Serializable
-data class FeedFilters(
-    val opened: OpenedFilter = OpenedFilter.ALL,
-    val favoritesOnly: Boolean = false,
-    val kinds: Set<LinkKind> = emptySet(),
-    /** Any of these categories, each including everything inside it. */
-    val categoryIds: Set<String> = emptySet(),
-    val tagIds: Set<String> = emptySet(),
-    /** false: a link needs any of [tagIds]; true: all of them. */
-    val tagMatchAll: Boolean = false,
-    val saved: SavedRange = SavedRange.ANY,
-    val includeArchived: Boolean = false,
-    /** Sort order. Not a filter, so it doesn't count toward [activeCount] or hide the Feed's discovery rows. */
-    val newestFirst: Boolean = true,
-) {
-    /** For the Filters button badge: one per section that is set. */
-    val activeCount: Int
-        get() = listOf(
-            opened != OpenedFilter.ALL, favoritesOnly, kinds.isNotEmpty(), categoryIds.isNotEmpty(),
-            tagIds.isNotEmpty(), saved != SavedRange.ANY, includeArchived && opened != OpenedFilter.ARCHIVED,
-        ).count { it }
-}
 
 data class LibraryState(
     val isLoading: Boolean = true,
@@ -83,42 +45,10 @@ data class LibraryState(
     fun categoryOf(link: Link): Category? = linkCategoryIds[link.id]?.let { id -> categories.firstOrNull { it.id == id } }
 }
 
-fun Link.kind(): LinkKind = when {
-    title.isBlank() || title == url -> LinkKind.NO_PREVIEW
-    type == "video" -> LinkKind.VIDEO
-    type == "social" -> LinkKind.SOCIAL
-    else -> LinkKind.ARTICLE
-}
-
-/** Start of the range in epoch ms (device time zone), or null for Any time. */
-@OptIn(ExperimentalTime::class)
-fun SavedRange.startMs(nowMs: Long, zone: TimeZone = TimeZone.currentSystemDefault()): Long? {
-    val today = Instant.fromEpochMilliseconds(nowMs).toLocalDateTime(zone).date
-    val start: LocalDate = when (this) {
-        SavedRange.ANY -> return null
-        SavedRange.TODAY -> today
-        SavedRange.THIS_WEEK -> today.minus(DatePeriod(days = today.dayOfWeek.isoDayNumber - 1)) // Monday
-        SavedRange.THIS_MONTH -> LocalDate(today.year, today.month, 1)
-    }
-    return start.atStartOfDayIn(zone).toEpochMilliseconds()
-}
-
 /** Cards in the Feed's "Pick up where you left off" row. */
 const val PICK_UP_COUNT = 5
-private const val DAY_MS = 24 * 60 * 60 * 1000L
 
-/** Heading of the resurfacing card: "You saved this 3 weeks ago", or a plain one when the date is unknown. */
-fun resurfaceLabel(createdAt: Long?, nowMs: Long): String {
-    if (createdAt == null || createdAt <= 0L) return "From your older saves"
-    val days = ((nowMs - createdAt) / DAY_MS).toInt()
-    fun ago(n: Int, unit: String) = "You saved this $n $unit${if (n == 1) "" else "s"} ago"
-    return when {
-        days < 14 -> ago(days, "day")
-        days < 60 -> ago(days / 7, "week")
-        days < 365 -> ago(days / 30, "month")
-        else -> "You saved this over a year ago"
-    }
-}
+private const val DAY_MS = 24 * 60 * 60 * 1000L
 
 /** Search + [filters], then sorted. Used for the Feed and for the sheet's live "Show N saves" count. */
 @OptIn(ExperimentalTime::class)
