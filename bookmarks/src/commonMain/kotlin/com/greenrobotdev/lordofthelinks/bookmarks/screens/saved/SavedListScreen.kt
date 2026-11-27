@@ -55,9 +55,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.greenrobotdev.lordofthelinks.model.Category
 import com.greenrobotdev.lordofthelinks.model.Link
 import com.greenrobotdev.lordofthelinks.bookmarks.motion.sharedScope
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.FeedLinkCard
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.FeedSectionHeader
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.SwipeableFeedCard
+import com.greenrobotdev.lordofthelinks.bookmarks.components.link.FeedLinkCard
+import com.greenrobotdev.lordofthelinks.bookmarks.components.link.FeedSectionHeader
+import com.greenrobotdev.lordofthelinks.bookmarks.components.link.SwipeableFeedCard
 import com.greenrobotdev.lordofthelinks.bookmarks.domain.feed.feedSection
 import com.greenrobotdev.lordofthelinks.design.components.layout.AppLazyColumn
 import com.greenrobotdev.lordofthelinks.design.components.layout.AppLazyRow

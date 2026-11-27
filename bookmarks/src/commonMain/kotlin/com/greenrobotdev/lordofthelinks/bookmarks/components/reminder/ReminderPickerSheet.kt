@@ -1,4 +1,4 @@
-package com.greenrobotdev.lordofthelinks.bookmarks.screens.details
+package com.greenrobotdev.lordofthelinks.bookmarks.components.reminder
 
 import com.greenrobotdev.lordofthelinks.bookmarks.domain.reminder.reminderPickerStart
 import androidx.compose.foundation.clickable

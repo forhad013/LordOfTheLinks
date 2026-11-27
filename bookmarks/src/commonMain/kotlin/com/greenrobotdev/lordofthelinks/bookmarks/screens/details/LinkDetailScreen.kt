@@ -1,5 +1,6 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.details
 
+import com.greenrobotdev.lordofthelinks.bookmarks.components.reminder.ReminderPickerSheet
 import com.greenrobotdev.lordofthelinks.bookmarks.platform.rememberShareLink
 import com.greenrobotdev.lordofthelinks.bookmarks.domain.WebLinkHandler
 import com.greenrobotdev.lordofthelinks.design.components.utils.PlatformAsyncImage
@@ -11,7 +12,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.animation.animateColorAsState
-import com.greenrobotdev.lordofthelinks.bookmarks.components.LinkPreviewImage
+import com.greenrobotdev.lordofthelinks.bookmarks.components.link.LinkPreviewImage
 import com.greenrobotdev.lordofthelinks.bookmarks.motion.sharedThumb
 import com.greenrobotdev.lordofthelinks.bookmarks.motion.sharedTitle
 import com.greenrobotdev.lordofthelinks.design.components.layout.appVerticalScroll
@@ -88,7 +89,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import com.greenrobotdev.lordofthelinks.model.Link
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.CategoryField
+import com.greenrobotdev.lordofthelinks.bookmarks.components.field.CategoryField
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.CategoryPickerSheet
 import com.greenrobotdev.lordofthelinks.bookmarks.domain.reminderLabel
 import com.greenrobotdev.lordofthelinks.bookmarks.domain.savedAtLabel

@@ -41,8 +41,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.BrowseAllButton
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.ChoiceChip
+import com.greenrobotdev.lordofthelinks.bookmarks.components.field.BrowseAllButton
+import com.greenrobotdev.lordofthelinks.bookmarks.components.field.ChoiceChip
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.CategoryFilterSheet
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.tagPicker.TagPickerSheet
 import com.greenrobotdev.lordofthelinks.design.components.layout.BaseBottomSheet

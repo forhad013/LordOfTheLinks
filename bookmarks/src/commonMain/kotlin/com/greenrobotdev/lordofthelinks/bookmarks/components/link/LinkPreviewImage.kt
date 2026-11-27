@@ -1,4 +1,4 @@
-package com.greenrobotdev.lordofthelinks.bookmarks.components
+package com.greenrobotdev.lordofthelinks.bookmarks.components.link
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
