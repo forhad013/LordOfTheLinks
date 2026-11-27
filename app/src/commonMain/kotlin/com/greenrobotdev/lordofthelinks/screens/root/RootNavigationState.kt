@@ -3,6 +3,7 @@ package com.greenrobotdev.lordofthelinks.screens.root
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -18,6 +19,9 @@ class RootNavigationState(
     var currentTab: RootScreens by currentTab
     val startTab = startTab
 
+    /** Tab visit order, most recent last; Feed → Library → Reminders, back lands on Library. */
+    internal val tabHistory = mutableStateListOf(startTab) // observable: Back enablement reads it
+
     /**
      * Get all available tabs
      */
@@ -25,8 +29,32 @@ class RootNavigationState(
         get() = listOf(
             RootScreens.FeedTab,
             RootScreens.LibraryTab,
+            RootScreens.RemindersTab,
             RootScreens.SettingsTab
         )
+
+    fun indexOf(tab: RootScreens): Int = tabs.indexOf(tab)
+
+    /** Switch forward (or re-visit): record it so Back can walk the history. */
+    fun visit(tab: RootScreens) {
+        if (tab == currentTab) return
+        // Re-selecting an earlier tab moves it to the front of history, browser-style
+        tabHistory.remove(tab)
+        tabHistory.add(tab)
+        currentTab = tab
+    }
+
+    /** True when Back should return to the previous tab instead of leaving the app. */
+    fun canGoBack(): Boolean = tabHistory.size > 1
+
+    /** Back: return to the previously visited tab (and drop the current one from history). */
+    fun goBackTab(): RootScreens? {
+        if (tabHistory.size <= 1) return null
+        tabHistory.removeAt(tabHistory.lastIndex)
+        val previous = tabHistory.last()
+        currentTab = previous
+        return previous
+    }
 }
 
 /**
@@ -54,7 +82,7 @@ class RootNavigator(val state: RootNavigationState) {
      * Switch to a different tab
      */
     fun switchTab(tab: RootScreens) {
-        state.currentTab = tab
+        state.visit(tab)
     }
 
     /**

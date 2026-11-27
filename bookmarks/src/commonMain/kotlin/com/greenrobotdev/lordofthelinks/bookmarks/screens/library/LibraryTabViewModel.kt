@@ -22,7 +22,9 @@ data class LibraryTabState(
     val uncategorizedCount: Int = 0,
     val remindersCount: Int = 0,
     val categories: List<Category> = emptyList(),
-    val tags: List<Tag> = emptyList()
+    val tags: List<Tag> = emptyList(),
+    /** categoryId -> tag names assigned to the category, for the chips on category rows. */
+    val categoryTagNames: Map<String, Set<String>> = emptyMap()
 )
 
 class LibraryTabViewModel : MoleculeViewModel<LibraryTabEvent, LibraryTabState>(), KoinComponent {
@@ -54,6 +56,11 @@ class LibraryTabViewModel : MoleculeViewModel<LibraryTabEvent, LibraryTabState>(
         LaunchedEffect(Unit) {
             tagRepository.getTags().collect { result ->
                 result.onSuccess { tags -> state = state.copy(tags = tags) }
+            }
+        }
+        LaunchedEffect(Unit) {
+            tagRepository.getCategoryTagNames().collect { result ->
+                result.onSuccess { state = state.copy(categoryTagNames = it) }
             }
         }
 

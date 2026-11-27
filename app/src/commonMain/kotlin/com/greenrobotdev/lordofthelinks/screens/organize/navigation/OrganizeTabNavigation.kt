@@ -31,7 +31,10 @@ import com.greenrobotdev.lordofthelinks.screens.root.rememberTabNavigationState
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-fun OrganizeTabNavigation() {
+fun OrganizeTabNavigation(
+    /** The Library tab's Reminders tile opens the dedicated Reminders tab. */
+    onOpenReminders: () -> Unit = {},
+) {
     val tabNavState = rememberTabNavigationState(
         startRoute = OrganizeNavRoutes.OrganizeBase
     )
@@ -66,7 +69,7 @@ fun OrganizeTabNavigation() {
                     else -> emptyMap()
                 }
                 NavEntry(route, metadata = paneMetadata) {
-                    OrganizeTabEntry(route, tabNavigator)
+                    OrganizeTabEntry(route, tabNavigator, onOpenReminders)
                 }
             },
             onBack = { tabNavigator.goBack() },
@@ -80,7 +83,7 @@ fun OrganizeTabNavigation() {
                     backStack = tabNavState.backStack,
                     entryProvider = { route ->
                         NavEntry(route) {
-                            OrganizeTabEntry(route, tabNavigator)
+                            OrganizeTabEntry(route, tabNavigator, onOpenReminders)
                         }
                     },
                     sharedTransitionScope = this@SharedTransitionLayout,
@@ -93,12 +96,13 @@ fun OrganizeTabNavigation() {
 }
 
 @Composable
-private fun OrganizeTabEntry(route: NavKey, tabNavigator: TabNavigator) {
+private fun OrganizeTabEntry(route: NavKey, tabNavigator: TabNavigator, onOpenReminders: () -> Unit) {
     when (route) {
         // Library tab base (design: library_categories_amp_tags)
         is OrganizeNavRoutes.OrganizeBase -> LibraryTabScreen(
             onManage = { tabNavigator.navigate(OrganizeNavRoutes.Manage) },
             onOpenScope = { tabNavigator.navigate(OrganizeNavRoutes.SavedList(it)) },
+            onOpenReminders = onOpenReminders,
         )
 
         is OrganizeNavRoutes.SavedList -> SavedListScreen(

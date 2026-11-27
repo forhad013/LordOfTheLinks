@@ -59,6 +59,8 @@ import com.greenrobotdev.lordofthelinks.design.theme.LordsExtraColors
 fun LibraryTabScreen(
     onManage: () -> Unit,
     onOpenScope: (SavedScope) -> Unit,
+    /** Opens the dedicated Reminders tab (falls back to the smart list when null). */
+    onOpenReminders: (() -> Unit)? = null,
 ) {
     val viewModel: LibraryTabViewModel = viewModel { LibraryTabViewModel() }
     val state by viewModel.models.collectAsState()
@@ -140,7 +142,7 @@ fun LibraryTabScreen(
                 RemindersTile(
                     count = state.remindersCount,
                     modifier = Modifier.fillMaxWidth(),
-                    onClick = { onOpenScope(SavedScope.Reminders) },
+                    onClick = { onOpenReminders?.invoke() ?: onOpenScope(SavedScope.Reminders) },
                 )
             }
         }
@@ -169,7 +171,7 @@ fun LibraryTabScreen(
                         .padding(vertical = 6.dp)
                 ) {
                     state.categories.filter { it.parentId == null }.forEach { category ->
-                        CategoryTreeRow(category, state.categories, onOpen = { onOpenScope(SavedScope.InCategory(it)) })
+                        CategoryTreeRow(category, state.categories, state.categoryTagNames, onOpen = { onOpenScope(SavedScope.InCategory(it)) })
                     }
                 }
             }
@@ -290,6 +292,7 @@ private fun RemindersTile(count: Int, modifier: Modifier = Modifier, onClick: ()
 private fun CategoryTreeRow(
     category: Category,
     all: List<Category>,
+    categoryTagNames: Map<String, Set<String>>,
     onOpen: (String) -> Unit,
     depth: Int = 0,
 ) {
@@ -335,8 +338,38 @@ private fun CategoryTreeRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+        // Assigned tags as compact chips (mock: #kotlin #material3), max 3 then +N
+        val tags = categoryTagNames[category.id].orEmpty()
+        if (tags.isNotEmpty()) {
+            Row(
+                modifier = Modifier.padding(start = (46 + depth * 20).dp, end = 20.dp, bottom = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                tags.take(3).forEach { tagName ->
+                    Text(
+                        "#$tagName",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f))
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                    )
+                }
+                if (tags.size > 3) {
+                    Text(
+                        "+${tags.size - 3}",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
         if (expanded) {
-            children.forEach { child -> CategoryTreeRow(child, all, onOpen, depth + 1) }
+            children.forEach { child -> CategoryTreeRow(child, all, categoryTagNames, onOpen, depth + 1) }
         }
     }
 }
