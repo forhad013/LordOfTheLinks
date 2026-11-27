@@ -1,5 +1,7 @@
-package com.greenrobotdev.lordofthelinks.bookmarks.screens.library
+package com.greenrobotdev.lordofthelinks.bookmarks.screens.feed.components
 
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.feed.FeedState
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.feed.filterFeed
 import com.greenrobotdev.lordofthelinks.bookmarks.domain.feed.FeedFilters
 import com.greenrobotdev.lordofthelinks.bookmarks.domain.feed.LinkKind
 import com.greenrobotdev.lordofthelinks.bookmarks.domain.feed.OpenedFilter
@@ -49,13 +51,13 @@ import com.greenrobotdev.lordofthelinks.design.components.layout.BaseBottomSheet
 import com.greenrobotdev.lordofthelinks.design.foundation.icon.AppIcon
 
 /**
- * "Filter saves" sheet (design: Feed filter screen). Edits a draft of [LibraryState.filters];
+ * "Filter saves" sheet (design: Feed filter screen). Edits a draft of [FeedState.filters];
  * nothing reaches the Feed until "Show N saves". Close/back discards the draft.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun FeedFilterSheet(
-    state: LibraryState,
+    state: FeedState,
     onApply: (FeedFilters) -> Unit,
     onDismiss: () -> Unit,
 ) {

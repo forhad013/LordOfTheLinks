@@ -1,21 +1,22 @@
 package com.greenrobotdev.lordofthelinks.screens.library.navigation
 
 import androidx.navigation3.runtime.NavKey
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.saved.SavedScope
 
 /**
- * Library Tab Navigation Routes
- * Manages all screens within the Library tab
+ * Organize Tab Navigation Routes
+ * Manages all screens within the Organize tab
  */
 sealed class LibraryNavRoutes : NavKey {
-    // Base library screen
+    // Base organize screen - categoryNames and tags overview
     data object LibraryBase : LibraryNavRoutes()
 
-    // Link detail and editing
-    data class LinkDetail(val linkId: String) : LibraryNavRoutes()
-    data class AddLink(val initialUrl: String? = null) : LibraryNavRoutes()
+    // Manage categories and tags (rename/move/delete)
+    data object Manage : LibraryNavRoutes()
 
-    // Categories and tags management
-    data object Categories : LibraryNavRoutes()
-    data object Tags : LibraryNavRoutes()
-    data object AddTag : LibraryNavRoutes()
+    // Saved links of one smart list, category (with subcategories) or tag
+    data class SavedList(val scope: SavedScope) : LibraryNavRoutes()
+
+    // A link's details, opened from a saved list
+    data class LinkDetail(val linkId: String) : LibraryNavRoutes()
 }

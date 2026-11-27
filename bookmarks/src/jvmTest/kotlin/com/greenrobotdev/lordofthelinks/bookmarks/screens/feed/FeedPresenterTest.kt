@@ -1,4 +1,4 @@
-package com.greenrobotdev.lordofthelinks.bookmarks.screens.library
+package com.greenrobotdev.lordofthelinks.bookmarks.screens.feed
 
 import com.greenrobotdev.lordofthelinks.bookmarks.data.store.FeedFilterStore
 import com.greenrobotdev.lordofthelinks.bookmarks.domain.feed.FeedFilters
@@ -24,7 +24,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class LibraryPresenterTest {
+class FeedPresenterTest {
 
     // imageUrl "" = already checked, so these don't trigger the preview backfill
     private val links = FakeLinkRepository(
@@ -40,7 +40,7 @@ class LibraryPresenterTest {
     }))
 
     private suspend fun TestScope.open() = present { events ->
-        LibraryPresenter(events, links, categories, tags, FeedFilterStore(settings), metadata)
+        FeedPresenter(events, links, categories, tags, FeedFilterStore(settings), metadata)
     }
 
     @Test
@@ -61,7 +61,7 @@ class LibraryPresenterTest {
         val feed = open()
         val filters = FeedFilters(categoryIds = setOf("dev"), tagIds = setOf("t"))
 
-        feed.send(LibraryEvent.ApplyFilters(filters))
+        feed.send(FeedEvent.ApplyFilters(filters))
 
         assertEquals(filters, FeedFilterStore(settings).load())
     }
@@ -69,13 +69,13 @@ class LibraryPresenterTest {
     @Test
     fun filterChipsCanBeRemovedOneByOneOrCleared() = runTest {
         val feed = open()
-        feed.send(LibraryEvent.ApplyFilters(FeedFilters(categoryIds = setOf("dev"), tagIds = setOf("t"))), LibraryEvent.SearchChanged("kot"))
+        feed.send(FeedEvent.ApplyFilters(FeedFilters(categoryIds = setOf("dev"), tagIds = setOf("t"))), FeedEvent.SearchChanged("kot"))
 
-        feed.send(LibraryEvent.RemoveTag("t"))
+        feed.send(FeedEvent.RemoveTag("t"))
         assertEquals(setOf("dev"), feed.state.filters.categoryIds)
         assertEquals(emptySet(), feed.state.filters.tagIds)
 
-        feed.send(LibraryEvent.ClearFilters)
+        feed.send(FeedEvent.ClearFilters)
         assertEquals(FeedFilters(), feed.state.filters)
         assertEquals("", feed.state.searchQuery)
     }
@@ -83,7 +83,7 @@ class LibraryPresenterTest {
     @Test
     fun deletedCategoryDropsOutOfTheFilters() = runTest {
         val feed = open()
-        feed.send(LibraryEvent.ApplyFilters(FeedFilters(categoryIds = setOf("dev"))))
+        feed.send(FeedEvent.ApplyFilters(FeedFilters(categoryIds = setOf("dev"))))
 
         categories.categories.value = emptyList()
         settle() // let the flow emission land
@@ -96,14 +96,14 @@ class LibraryPresenterTest {
         val feed = open()
         val before = links.link("a")
 
-        feed.send(LibraryEvent.Archive("a"), LibraryEvent.Opened("b"))
+        feed.send(FeedEvent.Archive("a"), FeedEvent.Opened("b"))
         assertTrue(links.link("a").isArchived)
         assertTrue(links.link("b").isOpened)
 
-        feed.send(LibraryEvent.Delete("b"))
+        feed.send(FeedEvent.Delete("b"))
         assertEquals(listOf("a"), feed.state.links.map { it.id })
 
-        feed.send(LibraryEvent.Restore(before))
+        feed.send(FeedEvent.Restore(before))
         assertFalse(links.link("a").isArchived)
     }
 

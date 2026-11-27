@@ -1,7 +1,7 @@
-package com.greenrobotdev.lordofthelinks.bookmarks.screens.library
+package com.greenrobotdev.lordofthelinks.bookmarks.screens.feed
 
 import com.greenrobotdev.lordofthelinks.bookmarks.domain.feed.resurfaceLabel
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.LibraryState
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.feed.FeedState
 import com.greenrobotdev.lordofthelinks.model.Link
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -25,7 +25,7 @@ class ResurfaceTest {
             Link(id = id, title = id, url = "https://$id.com", isOpened = opened, isArchived = archived,
                 createdAt = ageDays?.let { now - it * day })
         val newest = (1..PICK_UP_COUNT).map { link("new$it", 0) } // fill the pick-up row
-        val state = LibraryState(links = newest + listOf(
+        val state = FeedState(links = newest + listOf(
             link("recent", 3),
             link("old", 20),
             link("older", 40),

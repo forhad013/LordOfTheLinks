@@ -7,7 +7,6 @@ import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -63,9 +62,9 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import com.greenrobotdev.lordofthelinks.model.SharedContent
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.sheet.AddLinkSheet
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.reminders.RemindersScreen
-import com.greenrobotdev.lordofthelinks.screens.library.navigation.LibraryNavRoutes
+import com.greenrobotdev.lordofthelinks.screens.feed.navigation.FeedNavRoutes
+import com.greenrobotdev.lordofthelinks.screens.feed.navigation.FeedTabNavigation
 import com.greenrobotdev.lordofthelinks.screens.library.navigation.LibraryTabNavigation
-import com.greenrobotdev.lordofthelinks.screens.organize.navigation.OrganizeTabNavigation
 import com.greenrobotdev.lordofthelinks.screens.settings.navigation.SettingsTabNavigation
 import com.greenrobotdev.lordofthelinks.design.motion.rememberReducedMotion
 import kotlinx.serialization.modules.SerializersModule
@@ -119,7 +118,7 @@ fun RootScreen(
 
     // Feed tab reuses the Library tab's navigation (Add link, details, notes)
     val feedTabNavState = rememberTabNavigationState(
-        startRoute = LibraryNavRoutes.LibraryBase
+        startRoute = FeedNavRoutes.FeedBase
     )
     val feedTabNavigator = remember { TabNavigator(feedTabNavState) }
 
@@ -149,7 +148,7 @@ fun RootScreen(
             initialUrl = url.takeIf { it.isNotEmpty() },
             onContinue = { continued ->
                 addLinkSheetUrl = null
-                feedTabNavigator.navigateToNew(LibraryNavRoutes.AddLink(continued))
+                feedTabNavigator.navigateToNew(FeedNavRoutes.AddLink(continued))
             },
             onDismiss = { addLinkSheetUrl = null },
         )
@@ -192,7 +191,7 @@ fun RootScreen(
         floatingActionButton = {
             // FAB only on the Feed list itself (hidden on Add link, link details, …); opens Add link
             if (rootNavigator.getCurrentTab() == RootScreens.FeedTab &&
-                feedTabNavState.backStack.lastOrNull() is LibraryNavRoutes.LibraryBase
+                feedTabNavState.backStack.lastOrNull() is FeedNavRoutes.FeedBase
             ) {
                 FloatingActionButton(
                     onClick = { openAddLinkSheet(null) },
@@ -260,11 +259,11 @@ fun RootScreen(
                 label = "TabSwitch",
             ) { tab ->
                 when (tab) {
-                    RootScreens.FeedTab -> LibraryTabNavigation(
+                    RootScreens.FeedTab -> FeedTabNavigation(
                         tabNavigator = feedTabNavigator,
                         onAddLink = openAddLinkSheet,
                     )
-                    RootScreens.LibraryTab -> OrganizeTabNavigation(
+                    RootScreens.LibraryTab -> LibraryTabNavigation(
                         onOpenReminders = { rootNavigator.switchTab(RootScreens.RemindersTab) }
                     )
                     RootScreens.RemindersTab -> RemindersScreen()

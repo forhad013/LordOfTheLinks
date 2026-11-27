@@ -1,4 +1,4 @@
-package com.greenrobotdev.lordofthelinks.bookmarks.screens.library
+package com.greenrobotdev.lordofthelinks.bookmarks.screens.feed
 
 import kotlin.test.Test
 import kotlin.test.assertFalse
