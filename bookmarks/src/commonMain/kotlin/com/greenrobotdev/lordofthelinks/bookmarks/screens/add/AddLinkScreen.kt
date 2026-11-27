@@ -58,7 +58,14 @@ import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.TagInpu
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.CategoryPickerSheet
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.tagPicker.TagPickerSheet
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.BrowseAllButton
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.details.ReminderPickerSheet
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.reminderLabel
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.outlined.Notifications
 import com.greenrobotdev.lordofthelinks.design.components.feedback.ErrorMessageCard
 import com.greenrobotdev.lordofthelinks.design.components.textfield.AppTextFieldEnhanced
 
@@ -106,6 +113,16 @@ fun AddLinkScreen(
         )
     }
 
+    var pickReminder by remember { mutableStateOf(false) }
+    if (pickReminder) {
+        ReminderPickerSheet(
+            onDismiss = { pickReminder = false },
+            onSet = { viewModel.take(AddLinkEvent.SetReminder(it)) },
+            onClear = { viewModel.take(AddLinkEvent.ClearReminder) },
+            currentReminderAt = state.reminderAt,
+        )
+    }
+
     state.duplicate?.let { duplicate ->
         AlreadySaved(duplicate, onClose = onBack, onView = { onOpenDetails(duplicate.linkId) })
         return
@@ -117,6 +134,7 @@ fun AddLinkScreen(
         onClose = onBack,
         onPickCategory = { pickCategory = true },
         onBrowseTags = { pickTags = true },
+        onPickReminder = { pickReminder = true },
     )
 }
 
@@ -128,6 +146,7 @@ fun AddLinkView(
     onClose: () -> Unit,
     onPickCategory: () -> Unit,
     onBrowseTags: () -> Unit = {},
+    onPickReminder: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val selectedCategory = state.availableCategories.firstOrNull { it.id in state.selectedCategoryIds }
@@ -215,6 +234,30 @@ fun AddLinkView(
 
             SectionTitle("Note (optional)", Modifier.padding(top = 4.dp))
             NoteField(value = state.notes.orEmpty(), onValueChange = { onEvent(AddLinkEvent.NotesChanged(it)) })
+
+            // Reminder
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                    .clickable(onClick = onPickReminder)
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                AppIcon(
+                    if (state.reminderAt != null) Icons.Filled.Notifications else Icons.Outlined.Notifications,
+                    contentDescription = "Set reminder",
+                    color = if (state.reminderAt != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(Modifier.width(12.dp))
+                val label = state.reminderAt?.let { reminderLabel(it) }
+                Text(
+                    text = label ?: "Add reminder",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = if (label != null) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
 
             state.error?.let { ErrorMessageCard(error = it, onDismiss = { onEvent(AddLinkEvent.ClearError) }) }
         }

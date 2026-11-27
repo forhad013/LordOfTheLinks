@@ -83,6 +83,7 @@ fun AddLinkPresenter(
         fetchedDescription = state.fetchedMetadata?.description?.takeIf { it.isNotBlank() },
         createdAt = state.createdAt,
         imageUrl = state.fetchedMetadata?.let { it.imageUrl.orEmpty() }, // "": fetched, no image
+        reminderAt = state.reminderAt,
     )
 
     fun stampCreatedAt() {
@@ -153,6 +154,11 @@ fun AddLinkPresenter(
                                 // Assign selected categoryNames
                                 state.selectedCategoryIds.forEach { categoryId ->
                                     categoryRepository.assignLinkToCategory(linkId, categoryId).first()
+                                }
+
+                                // Set reminder if one was chosen
+                                state.reminderAt?.let { reminderAt ->
+                                    linkRepository.setReminder(linkId, reminderAt).first()
                                 }
                             } catch (e: Exception) {
                                 // Log error but don't fail the entire operation
@@ -306,6 +312,13 @@ fun AddLinkPresenter(
                 }
                 is AddLinkEvent.SetDueTime -> {
                     state = state.copy(dueTime = event.time)
+                }
+                // Reminder event handlers
+                is AddLinkEvent.SetReminder -> {
+                    state = state.copy(reminderAt = event.reminderAt)
+                }
+                is AddLinkEvent.ClearReminder -> {
+                    state = state.copy(reminderAt = null)
                 }
                 // Notes event handler
                 is AddLinkEvent.NotesChanged -> {

@@ -38,6 +38,8 @@ data class AddLinkState(
     val createdAt: Long? = null,
     /** This URL is already saved: nothing new is stored and the screen offers that save instead. */
     val duplicate: SavedDuplicate? = null,
+    /** Epoch ms of the reminder, or null if none. */
+    val reminderAt: Long? = null,
     // Task-related fields
     val isTask: Boolean = false,
     val taskPriority: String = "Medium",
@@ -73,4 +75,6 @@ sealed interface AddLinkEvent {
     data class ToggleTask(val isTask: Boolean) : AddLinkEvent
     data class SetTaskPriority(val priority: String) : AddLinkEvent
     data class SetDueTime(val time: String) : AddLinkEvent
+    data class SetReminder(val reminderAt: Long) : AddLinkEvent
+    object ClearReminder : AddLinkEvent
 }
