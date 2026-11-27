@@ -1,5 +1,8 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.details
 
+import com.greenrobotdev.lordofthelinks.bookmarks.components.reminder.ReminderPickerSheet
+import com.greenrobotdev.lordofthelinks.bookmarks.platform.rememberShareLink
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.WebLinkHandler
 import com.greenrobotdev.lordofthelinks.design.components.utils.PlatformAsyncImage
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.blur
@@ -9,7 +12,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.animation.animateColorAsState
-import com.greenrobotdev.lordofthelinks.bookmarks.components.LinkPreviewImage
+import com.greenrobotdev.lordofthelinks.bookmarks.components.link.LinkPreviewImage
 import com.greenrobotdev.lordofthelinks.bookmarks.motion.sharedThumb
 import com.greenrobotdev.lordofthelinks.bookmarks.motion.sharedTitle
 import com.greenrobotdev.lordofthelinks.design.components.layout.appVerticalScroll
@@ -41,12 +44,15 @@ import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.automirrored.outlined.Article
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.CheckCircle
@@ -82,11 +88,11 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
-import com.greenrobotdev.lordofthelinks.bookmarks.domain.hostOf
 import com.greenrobotdev.lordofthelinks.model.Link
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.CategoryField
+import com.greenrobotdev.lordofthelinks.bookmarks.components.field.CategoryField
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.CategoryPickerSheet
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.savedAtLabel
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.reminderLabel
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.savedAtLabel
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.tagPicker.TagPickerSheet
 import com.greenrobotdev.lordofthelinks.design.components.feedback.ErrorMessageCard
 import com.greenrobotdev.lordofthelinks.design.components.layout.AppActionBar
@@ -117,6 +123,7 @@ fun LinkDetailScreen(
 
     var pickCategory by remember { mutableStateOf(false) }
     var pickTags by remember { mutableStateOf(false) }
+    var pickReminder by remember { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf(false) }
     // Tag picker result that would remove tags; held until the user confirms
     var pendingTags by remember { mutableStateOf<Set<String>?>(null) }
@@ -145,6 +152,14 @@ fun LinkDetailScreen(
                 val removing = state.linkTags.any { it.id !in picked }
                 if (removing) pendingTags = picked else viewModel.take(LinkDetailEvent.SetTags(picked))
             },
+        )
+    }
+    if (pickReminder) {
+        ReminderPickerSheet(
+            currentReminderAt = link.reminderAt,
+            onSet = { viewModel.take(LinkDetailEvent.SetReminder(it)) },
+            onClear = { viewModel.take(LinkDetailEvent.ClearReminder) },
+            onDismiss = { pickReminder = false },
         )
     }
     pendingTags?.let { picked ->
@@ -198,7 +213,7 @@ fun LinkDetailScreen(
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     TypeChip(type = link.type, onPick = { viewModel.take(LinkDetailEvent.SetType(it)) })
                     Text(
-                        hostOf(link.url),
+                        WebLinkHandler.hostOf(link.url),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -206,6 +221,30 @@ fun LinkDetailScreen(
                 }
 
                 TitleBlock(link = link, onRename = { viewModel.take(LinkDetailEvent.Rename(it)) })
+
+                if (link.reminderAt != null) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(10.dp))
+                            .clickable { pickReminder = true }
+                            .padding(vertical = 2.dp),
+                    ) {
+                        AppIcon(
+                            Icons.Filled.Alarm,
+                            contentDescription = null,
+                            color = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.size(16.dp),
+                        )
+                        Text(
+                            reminderLabel(link.reminderAt),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.tertiary,
+                        )
+                    }
+                }
 
                 CategoryField(
                     selectedPath = state.category?.path(state.categories),
@@ -295,6 +334,12 @@ fun LinkDetailScreen(
                     icon = if (link.isOpened) Icons.Filled.CheckCircle else Icons.Outlined.CheckCircle,
                     label = if (link.isOpened) "Mark as unopened" else "Mark as opened",
                     onClick = { viewModel.take(LinkDetailEvent.ToggleOpened) },
+                )
+                BarIcon(
+                    icon = if (link.reminderAt != null) Icons.Filled.Notifications else Icons.Outlined.Notifications,
+                    label = if (link.reminderAt != null) "Change reminder" else "Remind me",
+                    tint = if (link.reminderAt != null) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.inverseOnSurface,
+                    onClick = { pickReminder = true },
                 )
                 MoreMenu(
                     onCopy = { clipboard.setText(AnnotatedString(link.url)) },
@@ -491,7 +536,6 @@ private fun TitleBlock(link: Link, onRename: (String) -> Unit) {
             Text(
                 listOfNotNull(
                     savedAtLabel(link.createdAt)?.let { label ->
-                        // "Saved today, 14:32" / "Saved Monday, 18:04" / "Saved 12 Nov 2025"
                         "Saved " + if (label.startsWith("Today") || label.startsWith("Yesterday") || label.startsWith("Just"))
                             label.replaceFirstChar { it.lowercaseChar() } else label
                     },

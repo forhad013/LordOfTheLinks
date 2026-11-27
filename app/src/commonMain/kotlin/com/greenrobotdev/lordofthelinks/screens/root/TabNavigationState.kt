@@ -7,8 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
-import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 
 /**
@@ -92,15 +90,4 @@ class TabNavigator(val state: TabNavigationState) {
             state.currentRoute = state.backStack.last()
         }
     }
-}
-
-/**
- * Convert TabNavigationState into NavEntries list for display
- */
-@Composable
-fun TabNavigationState.toEntries(
-    entryProvider: (NavKey) -> NavEntry<NavKey>
-): SnapshotStateList<NavEntry<NavKey>> {
-    val entries = this.backStack.map { route -> entryProvider(route) }
-    return entries.toMutableStateList()
 }

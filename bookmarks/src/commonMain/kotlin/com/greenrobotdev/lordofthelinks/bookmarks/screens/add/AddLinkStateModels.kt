@@ -2,7 +2,7 @@ package com.greenrobotdev.lordofthelinks.bookmarks.screens.add
 
 import com.greenrobotdev.lordofthelinks.model.Category
 import com.greenrobotdev.lordofthelinks.model.Tag
-import com.greenrobotdev.lordofthelinks.bookmarks.service.LinkMetadata
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.provider.LinkMetadata
 import kotlinx.serialization.Serializable
 
 /** The existing save of a URL being added again. */
@@ -38,6 +38,8 @@ data class AddLinkState(
     val createdAt: Long? = null,
     /** This URL is already saved: nothing new is stored and the screen offers that save instead. */
     val duplicate: SavedDuplicate? = null,
+    /** Epoch ms of the reminder, or null if none. */
+    val reminderAt: Long? = null,
     // Task-related fields
     val isTask: Boolean = false,
     val taskPriority: String = "Medium",
@@ -73,4 +75,6 @@ sealed interface AddLinkEvent {
     data class ToggleTask(val isTask: Boolean) : AddLinkEvent
     data class SetTaskPriority(val priority: String) : AddLinkEvent
     data class SetDueTime(val time: String) : AddLinkEvent
+    data class SetReminder(val reminderAt: Long) : AddLinkEvent
+    object ClearReminder : AddLinkEvent
 }

@@ -22,7 +22,7 @@ expect val platformModule: Module
 val databaseDataModule: Module = module {
     single<LinkDatabase> { get<DatabaseBuilder>().getDatabaseBuilder().build() }
 
-    single<TagRepository> { RoomTagRepository(get<LinkDatabase>().tagDao(), get<LinkDatabase>().linkTagDao()) }
+    single<TagRepository> { RoomTagRepository(get<LinkDatabase>().tagDao(), get<LinkDatabase>().linkTagDao(), get<LinkDatabase>().categoryTagDao()) }
     single<CategoryRepository> { RoomCategoryRepository(get<LinkDatabase>().categoryDao()) }
     single<LinkRepository> {
         RoomLinkRepository(get<LinkDatabase>().linkDao(), get<LinkDatabase>().tagDao(), get<LinkDatabase>().categoryDao())

@@ -26,7 +26,8 @@ internal fun Link.toEntity() = LinkEntity(
     fetchedDescription = fetchedDescription,
     createdAt = createdAt,
     imageUrl = imageUrl,
-    tags = tags
+    tags = tags,
+    reminderAt = reminderAt
 )
 
 internal fun LinkEntity.toDomain(categoryName: String? = null) = Link(
@@ -42,7 +43,8 @@ internal fun LinkEntity.toDomain(categoryName: String? = null) = Link(
     createdAt = createdAt,
     imageUrl = imageUrl,
     tags = tags,
-    categoryName = categoryName
+    categoryName = categoryName,
+    reminderAt = reminderAt
 )
 
 // Tag extensions
@@ -101,5 +103,6 @@ internal fun CategoryDao.SmartListCounts.toDomain() = SmartListCounts(
     unopened = unopened,
     favorites = favorites,
     archived = archived,
-    uncategorized = uncategorized
+    uncategorized = uncategorized,
+    reminders = reminders
 )

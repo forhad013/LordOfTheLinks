@@ -9,39 +9,40 @@ import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.details.LinkDetailScreen
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.saved.SavedListScreen
 import com.greenrobotdev.lordofthelinks.design.motion.LocalSharedTransitionScope
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.ui.NavDisplay
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.AddLinkScreen
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.details.LinkDetailScreen
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.LibraryScreen
-import com.greenrobotdev.lordofthelinks.screens.root.DetailPanePlaceholder
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.manage.ManageScreen
 import com.greenrobotdev.lordofthelinks.screens.root.TabNavigator
+import com.greenrobotdev.lordofthelinks.screens.root.DetailPanePlaceholder
+import com.greenrobotdev.lordofthelinks.screens.root.rememberTabNavigationState
 
 /**
- * Library Tab Navigation - Manages all screens within the Library tab
+ * Organize Tab Navigation - Manages all screens within the Organize tab
  *
- * On expanded window sizes (desktop, tablet) the Feed and Link details render side by side as a
- * list-detail scaffold; on compact windows it stays the single-pane stack navigation.
+ * On expanded window sizes the saved list and link details render side by side; compact windows
+ * keep single-pane navigation with shared-element morphs.
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun LibraryTabNavigation(
-    tabNavigator: TabNavigator,
-    onAddLink: (String?) -> Unit = { initialUrl ->
-        tabNavigator.navigateToNew(LibraryNavRoutes.AddLink(initialUrl))
-    }
+    /** The Library tab's Reminders tile opens the dedicated Reminders tab. */
+    onOpenReminders: () -> Unit = {},
 ) {
-    val tabNavState = tabNavigator.state
+    val tabNavState = rememberTabNavigationState(
+        startRoute = LibraryNavRoutes.LibraryBase
+    )
 
-    // Yields to single-pane on compact windows (calculateScene returns null when the scaffold
-    // can't show 2+ panes), so phones keep the existing full-screen navigation.
-    val listDetailStrategy = rememberListDetailSceneStrategy<NavKey>()
+    val tabNavigator = remember { TabNavigator(tabNavState) }
 
-    // Shared-element morphs only make sense single-pane (one screen hides as the other shows).
-    // With list and detail visible at once the same keys would fight over their bounds forever.
+    // Shared-element morphs only make sense single-pane. With list and detail visible at once the
+    // same keys would fight over their bounds forever (layout write loop, 100% CPU).
     // Same signal the strategy uses: >1 horizontal partition means two panes fit side by side.
     val twoPanesFit = calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2())
         .maxHorizontalPartitions > 1
@@ -49,33 +50,40 @@ fun LibraryTabNavigation(
     if (twoPanesFit) {
         NavDisplay(
             backStack = tabNavState.backStack,
-            sceneStrategies = listOf(listDetailStrategy),
+            sceneStrategies = listOf(rememberListDetailSceneStrategy<NavKey>()),
             entryProvider = { route ->
-                // Pane metadata drives the list-detail scaffold: Feed = list, details = detail.
-                // Routes without metadata (AddLink) fall through to single-pane.
+                // Categories and tags = list, saved list = detail, link details = extra. Two panes
+                // show the last two: Library | saved list, then saved list | link details.
+                // Manage has no metadata, so it stays full-screen.
                 val paneMetadata = when (route) {
                     is LibraryNavRoutes.LibraryBase -> ListDetailSceneStrategy.listPane(
-                        detailPlaceholder = { DetailPanePlaceholder(onAddLink = { onAddLink(null) }) }
+                        detailPlaceholder = {
+                            DetailPanePlaceholder(
+                                title = "Pick a category or tag",
+                                description = "Its saved links show here.",
+                            )
+                        }
                     )
-                    is LibraryNavRoutes.LinkDetail -> ListDetailSceneStrategy.detailPane()
+                    is LibraryNavRoutes.SavedList -> ListDetailSceneStrategy.detailPane()
+                    is LibraryNavRoutes.LinkDetail -> ListDetailSceneStrategy.extraPane()
                     else -> emptyMap()
                 }
                 NavEntry(route, metadata = paneMetadata) {
-                    LibraryTabEntry(route, tabNavigator, onAddLink)
+                    LibraryTabEntry(route, tabNavigator, onOpenReminders)
                 }
             },
             onBack = { tabNavigator.goBack() },
             modifier = Modifier.fillMaxSize()
         )
     } else {
-        // Shared-element host: lets a Feed card's thumbnail grow into the Link details badge
+        // Shared-element host: tiles grow into list headers, cards into Link details
         SharedTransitionLayout {
             CompositionLocalProvider(LocalSharedTransitionScope provides this) {
                 NavDisplay(
                     backStack = tabNavState.backStack,
                     entryProvider = { route ->
                         NavEntry(route) {
-                            LibraryTabEntry(route, tabNavigator, onAddLink)
+                            LibraryTabEntry(route, tabNavigator, onOpenReminders)
                         }
                     },
                     sharedTransitionScope = this@SharedTransitionLayout,
@@ -88,40 +96,33 @@ fun LibraryTabNavigation(
 }
 
 @Composable
-private fun LibraryTabEntry(
-    route: NavKey,
-    tabNavigator: TabNavigator,
-    onAddLink: (String?) -> Unit
-) {
+private fun LibraryTabEntry(route: NavKey, tabNavigator: TabNavigator, onOpenReminders: () -> Unit) {
     when (route) {
-        // Base screen — the Feed (list + empty state)
+        // Library tab base (design: library_categories_amp_tags)
         is LibraryNavRoutes.LibraryBase -> LibraryScreen(
-            routeKey = route,
-            onNavigateToDetail = { linkId ->
-                tabNavigator.navigate(LibraryNavRoutes.LinkDetail(linkId))
-            },
-            onAddLink = onAddLink
+            onManage = { tabNavigator.navigate(LibraryNavRoutes.Manage) },
+            onOpenScope = { tabNavigator.navigate(LibraryNavRoutes.SavedList(it)) },
+            onOpenReminders = onOpenReminders,
         )
 
-        // Link Detail Screen
+        is LibraryNavRoutes.SavedList -> SavedListScreen(
+            scope = route.scope,
+            onBack = { tabNavigator.goBack() },
+            onOpenScope = { tabNavigator.navigate(LibraryNavRoutes.SavedList(it)) },
+            onOpenDetails = { tabNavigator.navigate(LibraryNavRoutes.LinkDetail(it)) },
+        )
+
         is LibraryNavRoutes.LinkDetail -> LinkDetailScreen(
             routeKey = route,
             linkId = route.linkId,
             onBack = { tabNavigator.goBack() },
         )
 
-        // Add Link Screen
-        is LibraryNavRoutes.AddLink -> AddLinkScreen(
-            routeKey = route,
-            initialUrl = route.initialUrl,
-            onBack = { tabNavigator.goBack() },
-            // Already saved: swap this screen for that link's details
-            onOpenDetails = { linkId ->
-                tabNavigator.goBack()
-                tabNavigator.navigate(LibraryNavRoutes.LinkDetail(linkId))
-            },
+        // Manage categories and tags
+        is LibraryNavRoutes.Manage -> ManageScreen(
+            onBack = { tabNavigator.goBack() }
         )
 
-        else -> error("Unknown library route: $route")
+        else -> error("Unknown organize route: $route")
     }
 }

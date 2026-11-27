@@ -17,7 +17,8 @@ data class Link(
     /** Page preview image (og:image); null when the page has none or it wasn't fetched yet. */
     val imageUrl: String? = null,
     val tags: List<String> = emptyList(),
-    val categoryName: String? = null
+    val categoryName: String? = null,
+    val reminderAt: Long? = null
 ) {
     /** The preview image to show, if any ("" means the page has none). */
     val previewImage: String? get() = imageUrl?.takeIf { it.isNotBlank() }

@@ -33,6 +33,9 @@ sealed interface LinkDetailEvent {
     data class SetTags(val tagIds: Set<String>) : LinkDetailEvent
     /** Typing in the note; written after a short pause. */
     data class NoteChanged(val note: String) : LinkDetailEvent
+    /** Set a reminder at a specific epoch-ms timestamp. */
+    data class SetReminder(val reminderAt: Long) : LinkDetailEvent
+    object ClearReminder : LinkDetailEvent
     object Delete : LinkDetailEvent
     object ClearError : LinkDetailEvent
 }

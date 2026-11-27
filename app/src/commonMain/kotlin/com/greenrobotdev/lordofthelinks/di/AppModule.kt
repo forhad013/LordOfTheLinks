@@ -1,6 +1,7 @@
 package com.greenrobotdev.lordofthelinks.di
 
-import com.greenrobotdev.lordofthelinks.bookmarks.service.MetadataFetchService
+import com.greenrobotdev.lordofthelinks.bookmarks.data.provider.HtmlLinkMetadataProvider
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.provider.LinkMetadataProvider
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
@@ -21,7 +22,7 @@ val appModule = module {
     single<HttpClient> { createHttpClient() }
 
     // Metadata fetch service for auto-fetch functionality
-    single { MetadataFetchService(get()) }
+    single<LinkMetadataProvider> { HtmlLinkMetadataProvider(get()) }
 
     // Stitch module temporarily excluded for WASM prototype
 }

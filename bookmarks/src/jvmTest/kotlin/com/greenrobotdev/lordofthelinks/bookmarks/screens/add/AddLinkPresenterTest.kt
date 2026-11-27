@@ -1,11 +1,11 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.add
 
+import com.greenrobotdev.lordofthelinks.bookmarks.data.provider.HtmlLinkMetadataProvider
 import com.greenrobotdev.lordofthelinks.testing.FAILURE
 import com.greenrobotdev.lordofthelinks.testing.FakeCategoryRepository
 import com.greenrobotdev.lordofthelinks.testing.FakeLinkRepository
 import com.greenrobotdev.lordofthelinks.testing.FakeTagRepository
 import com.greenrobotdev.lordofthelinks.testing.present
-import com.greenrobotdev.lordofthelinks.bookmarks.service.MetadataFetchService
 import com.greenrobotdev.lordofthelinks.model.Category
 import com.greenrobotdev.lordofthelinks.model.Link
 import com.greenrobotdev.lordofthelinks.model.Tag
@@ -30,7 +30,7 @@ class AddLinkPresenterTest {
     private val tags = FakeTagRepository(Tag(id = "k", name = "Kotlin", count = 0))
     private val categories = FakeCategoryRepository(Category(id = "dev", name = "Dev"))
     private var page = """<html><head><meta property="og:title" content="My Article"><meta property="og:image" content="/cover.png"></head></html>"""
-    private val metadata = MetadataFetchService(HttpClient(MockEngine { if (page.isEmpty()) respondError(HttpStatusCode.NotFound) else respond(page) }))
+    private val metadata = HtmlLinkMetadataProvider(HttpClient(MockEngine { if (page.isEmpty()) respondError(HttpStatusCode.NotFound) else respond(page) }))
 
     private suspend fun TestScope.open(initialUrl: String? = url) = present { events ->
         AddLinkPresenter(
@@ -39,7 +39,7 @@ class AddLinkPresenterTest {
             linkRepository = links,
             tagRepository = tags,
             categoryRepository = categories,
-            metadataFetchService = metadata,
+            metadataProvider = metadata,
             initialUrl = initialUrl,
         )
     }

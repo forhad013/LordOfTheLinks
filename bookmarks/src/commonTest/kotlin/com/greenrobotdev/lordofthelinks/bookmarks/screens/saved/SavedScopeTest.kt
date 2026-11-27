@@ -35,4 +35,20 @@ class SavedScopeTest {
     fun tagMatchIgnoresCase() {
         assertEquals(listOf("new"), ids(SavedScope.WithTag("kotlin")))
     }
+
+    @Test
+    fun remindersShowsLinksWithReminderSet() {
+        val withReminder = links.map {
+            if (it.id == "fav") it.copy(reminderAt = 999L) else it
+        }
+        val result = savedInScope(SavedScope.Reminders, withReminder, categories, linkCategoryIds).map { it.id }
+        assertEquals(listOf("fav"), result)
+    }
+
+    @Test
+    fun tagInheritedFromCategory() {
+        val catTags = mapOf("android" to setOf("learning"))
+        val result = savedInScope(SavedScope.WithTag("learning"), links, categories, linkCategoryIds, catTags).map { it.id }
+        assertEquals(listOf("new"), result)
+    }
 }

@@ -48,6 +48,8 @@ class FakeLinkRepository(vararg links: Link) : FakeRepository(), LinkRepository 
     override suspend fun updateLink(link: Link) = write { change(link.id) { link }; link }
     override suspend fun markOpened(linkId: String) = write { change(linkId) { it.copy(isOpened = true) } }
     override suspend fun setImageUrl(linkId: String, imageUrl: String) = write { change(linkId) { it.copy(imageUrl = imageUrl) } }
+    override suspend fun setReminder(linkId: String, reminderAt: Long) = write { change(linkId) { it.copy(reminderAt = reminderAt) } }
+    override suspend fun clearReminder(linkId: String) = write { change(linkId) { it.copy(reminderAt = null) } }
 }
 
 class FakeTagRepository(vararg tags: Tag) : FakeRepository(), TagRepository {
@@ -78,6 +80,19 @@ class FakeTagRepository(vararg tags: Tag) : FakeRepository(), TagRepository {
         write { linkTags.update { it + (linkId to (it[linkId].orEmpty() + tagId)) } }
     override suspend fun removeTagFromLink(linkId: String, tagId: String) =
         write { linkTags.update { it + (linkId to (it[linkId].orEmpty() - tagId)) } }
+
+    val categoryTags = MutableStateFlow<Map<String, Set<String>>>(emptyMap())
+
+    override suspend fun assignTagToCategory(categoryId: String, tagId: String) =
+        write { categoryTags.update { it + (categoryId to (it[categoryId].orEmpty() + tagId)) } }
+    override suspend fun removeTagFromCategory(categoryId: String, tagId: String) =
+        write { categoryTags.update { it + (categoryId to (it[categoryId].orEmpty() - tagId)) } }
+    override suspend fun getTagsForCategory(categoryId: String) =
+        combine(tags, categoryTags) { all, assigned -> Result.success(all.filter { it.id in assigned[categoryId].orEmpty() }) }
+    override fun getCategoryTagNames() =
+        combine(tags, categoryTags) { all, assigned ->
+            Result.success(assigned.mapValues { (_, tagIds) -> tagIds.mapNotNull { id -> all.firstOrNull { it.id == id }?.name }.toSet() })
+        }
 }
 
 @Suppress("TooManyFunctions") // one per CategoryRepository method

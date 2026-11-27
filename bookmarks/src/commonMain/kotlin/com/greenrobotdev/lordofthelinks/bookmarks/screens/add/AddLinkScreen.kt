@@ -1,8 +1,9 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.add
 
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.WebLinkHandler
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.savedAtLabel
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.savedAtLabel
 import com.greenrobotdev.lordofthelinks.design.theme.ComponentStyle
 import com.greenrobotdev.lordofthelinks.design.components.button.StandardButton
 import com.greenrobotdev.lordofthelinks.design.foundation.icon.AppIcon
@@ -42,11 +43,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
-import com.greenrobotdev.lordofthelinks.bookmarks.domain.hostOf
-import com.greenrobotdev.lordofthelinks.bookmarks.domain.linkTypeOf
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.CategoryField
+import com.greenrobotdev.lordofthelinks.bookmarks.components.field.CategoryField
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.ChipRow
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.ChoiceChip
+import com.greenrobotdev.lordofthelinks.bookmarks.components.field.ChoiceChip
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.LinkKeptLine
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.LinkPreviewCard
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.NoteField
@@ -54,10 +53,13 @@ import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.SaveAct
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.SaveHeader
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.SectionTitle
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.SelectedTagChip
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.TagInput
+import com.greenrobotdev.lordofthelinks.bookmarks.components.field.TagInput
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.CategoryPickerSheet
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.tagPicker.TagPickerSheet
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.BrowseAllButton
+import com.greenrobotdev.lordofthelinks.bookmarks.components.field.BrowseAllButton
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.ReminderField
+import com.greenrobotdev.lordofthelinks.bookmarks.components.reminder.ReminderPickerSheet
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import com.greenrobotdev.lordofthelinks.design.components.feedback.ErrorMessageCard
 import com.greenrobotdev.lordofthelinks.design.components.textfield.AppTextFieldEnhanced
@@ -106,6 +108,16 @@ fun AddLinkScreen(
         )
     }
 
+    var pickReminder by remember { mutableStateOf(false) }
+    if (pickReminder) {
+        ReminderPickerSheet(
+            onDismiss = { pickReminder = false },
+            onSet = { viewModel.take(AddLinkEvent.SetReminder(it)) },
+            onClear = { viewModel.take(AddLinkEvent.ClearReminder) },
+            currentReminderAt = state.reminderAt,
+        )
+    }
+
     state.duplicate?.let { duplicate ->
         AlreadySaved(duplicate, onClose = onBack, onView = { onOpenDetails(duplicate.linkId) })
         return
@@ -117,6 +129,7 @@ fun AddLinkScreen(
         onClose = onBack,
         onPickCategory = { pickCategory = true },
         onBrowseTags = { pickTags = true },
+        onPickReminder = { pickReminder = true },
     )
 }
 
@@ -128,6 +141,7 @@ fun AddLinkView(
     onClose: () -> Unit,
     onPickCategory: () -> Unit,
     onBrowseTags: () -> Unit = {},
+    onPickReminder: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val selectedCategory = state.availableCategories.firstOrNull { it.id in state.selectedCategoryIds }
@@ -168,8 +182,8 @@ fun AddLinkView(
                 )
             } else {
                 LinkPreviewCard(
-                    type = linkTypeOf(state.url),
-                    host = hostOf(state.url),
+                    type = WebLinkHandler.typeOf(state.url),
+                    host = WebLinkHandler.hostOf(state.url),
                     title = state.title,
                     description = state.fetchedMetadata?.description,
                     isFetching = state.isFetching,
@@ -191,6 +205,11 @@ fun AddLinkView(
                     )
                 }
             }
+
+            ReminderField(
+                reminderAt = state.reminderAt,
+                onClick = onPickReminder,
+            )
 
             // "All tags" opens the tag picker sheet: search and multi-select when there are many tags
             Row(Modifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {

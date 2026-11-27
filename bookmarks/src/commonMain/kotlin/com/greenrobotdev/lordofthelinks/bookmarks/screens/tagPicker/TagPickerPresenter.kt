@@ -7,8 +7,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.greenrobotdev.lordofthelinks.model.Tag
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.DELETE_UNDO_MS
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.DeletePhase
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.DELETE_UNDO_MS
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.DeletePhase
 import com.greenrobotdev.lordofthelinks.model.repository.TagRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow

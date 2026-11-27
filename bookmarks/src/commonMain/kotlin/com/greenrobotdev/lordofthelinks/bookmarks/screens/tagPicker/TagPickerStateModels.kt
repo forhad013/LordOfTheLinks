@@ -1,7 +1,7 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.tagPicker
 
 import com.greenrobotdev.lordofthelinks.model.Tag
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.DeletePhase
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.DeletePhase
 
 /**
  * Tag picker state: a flat list with search, create, rename and delete (with undo).

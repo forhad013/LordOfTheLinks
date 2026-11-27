@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import com.greenrobotdev.lordofthelinks.model.repository.CategoryRepository
 import com.greenrobotdev.lordofthelinks.model.repository.LinkRepository
 import com.greenrobotdev.lordofthelinks.model.repository.TagRepository
-import com.greenrobotdev.lordofthelinks.bookmarks.backup.LinksBackupService
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.manager.BackupManager
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -19,7 +19,7 @@ class SettingsViewModel : MoleculeViewModel<SettingsEvent, SettingsState>(), Koi
     private val linkRepository: LinkRepository by inject()
     private val categoryRepository: CategoryRepository by inject()
     private val tagRepository: TagRepository by inject()
-    private val backupService by lazy { LinksBackupService(linkRepository, categoryRepository, tagRepository) }
+    private val backupService by lazy { BackupManager(linkRepository, categoryRepository, tagRepository) }
 
     @Composable
     override fun models(events: Flow<SettingsEvent>): SettingsState {
