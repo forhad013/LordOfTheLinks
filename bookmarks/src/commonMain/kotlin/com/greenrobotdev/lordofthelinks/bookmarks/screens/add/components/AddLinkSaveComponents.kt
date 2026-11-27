@@ -28,8 +28,10 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -211,6 +213,53 @@ internal fun CategoryField(
             Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = null,
             color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+/** Bordered field matching CategoryField: bell icon, "Reminder (optional)" over the selected time. Opens the picker. */
+@Composable
+internal fun ReminderField(
+    reminderAt: Long?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val label = reminderAt?.let { com.greenrobotdev.lordofthelinks.bookmarks.screens.library.reminderLabel(it) }
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        AppIcon(
+            if (reminderAt != null) Icons.Filled.Notifications else Icons.Outlined.Notifications,
+            contentDescription = null,
+            color = if (reminderAt != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+        )
+        Column(Modifier.weight(1f)) {
+            Text(
+                "Reminder (optional)",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                label ?: "No reminder",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold,
+                color = if (label != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        AppIcon(
+            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }

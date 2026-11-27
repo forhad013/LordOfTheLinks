@@ -58,14 +58,10 @@ import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.TagInpu
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.CategoryPickerSheet
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.tagPicker.TagPickerSheet
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.BrowseAllButton
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.add.components.ReminderField
 import com.greenrobotdev.lordofthelinks.bookmarks.screens.details.ReminderPickerSheet
-import com.greenrobotdev.lordofthelinks.bookmarks.screens.library.reminderLabel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.outlined.Notifications
 import com.greenrobotdev.lordofthelinks.design.components.feedback.ErrorMessageCard
 import com.greenrobotdev.lordofthelinks.design.components.textfield.AppTextFieldEnhanced
 
@@ -211,6 +207,11 @@ fun AddLinkView(
                 }
             }
 
+            ReminderField(
+                reminderAt = state.reminderAt,
+                onClick = onPickReminder,
+            )
+
             // "All tags" opens the tag picker sheet: search and multi-select when there are many tags
             Row(Modifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 SectionTitle("Tags (optional)", Modifier.weight(1f))
@@ -234,30 +235,6 @@ fun AddLinkView(
 
             SectionTitle("Note (optional)", Modifier.padding(top = 4.dp))
             NoteField(value = state.notes.orEmpty(), onValueChange = { onEvent(AddLinkEvent.NotesChanged(it)) })
-
-            // Reminder
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
-                    .clickable(onClick = onPickReminder)
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                AppIcon(
-                    if (state.reminderAt != null) Icons.Filled.Notifications else Icons.Outlined.Notifications,
-                    contentDescription = "Set reminder",
-                    color = if (state.reminderAt != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(Modifier.width(12.dp))
-                val label = state.reminderAt?.let { reminderLabel(it) }
-                Text(
-                    text = label ?: "Add reminder",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = if (label != null) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
 
             state.error?.let { ErrorMessageCard(error = it, onDismiss = { onEvent(AddLinkEvent.ClearError) }) }
         }
