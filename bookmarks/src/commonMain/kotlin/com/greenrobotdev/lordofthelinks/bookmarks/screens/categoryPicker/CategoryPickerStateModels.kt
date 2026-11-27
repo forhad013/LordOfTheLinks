@@ -1,6 +1,7 @@
 package com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker
 
 import com.greenrobotdev.lordofthelinks.model.Category
+import com.greenrobotdev.lordofthelinks.model.Tag
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -26,6 +27,12 @@ data class CategoryPickerState(
     val parentDeleteChoice: ParentDeleteChoiceKind? = null,
     /** Select-only (filter) mode: the ticked categories; several allowed. */
     val checkedIds: Set<String> = emptySet(),
+    /** Tag names assigned per category id, for the chips on rows. */
+    val categoryTagNames: Map<String, Set<String>> = emptyMap(),
+    /** All tags, for the tag-editing sheet. */
+    val tags: List<Tag> = emptyList(),
+    /** Tag-editing sheet open for this category id. */
+    val editingTagsOf: String? = null,
 ) {
     /** Rows the UI lists: everything except the subtree hidden while a delete waits out its undo window. */
     val categories: List<Category>
@@ -97,4 +104,12 @@ sealed interface CategoryPickerEvent {
     data class ToggleChecked(val categoryId: String) : CategoryPickerEvent
     /** Filter mode: untick everything. */
     object ClearChecked : CategoryPickerEvent
+    /** Open the tag-editing sheet for a category. */
+    data class EditTags(val categoryId: String) : CategoryPickerEvent
+    /** Close the tag-editing sheet. */
+    object CloseTagEditor : CategoryPickerEvent
+    /** Tag editor: toggle a tag on the edited category. */
+    data class ToggleCategoryTag(val categoryId: String, val tagId: String) : CategoryPickerEvent
+    /** Tag editor: create a tag with this name and assign it to the category. */
+    data class AddCategoryTagByName(val categoryId: String, val name: String) : CategoryPickerEvent
 }
