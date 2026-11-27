@@ -1,29 +1,69 @@
-package com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker
+package com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.CategoryPickerEvent
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.CategoryPickerState
+import com.greenrobotdev.lordofthelinks.bookmarks.screens.categoryPicker.ParentDeleteChoiceKind
+import com.greenrobotdev.lordofthelinks.bookmarks.components.picker.ImpactCard
+import com.greenrobotdev.lordofthelinks.bookmarks.domain.DeletePhase
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+
+/** What deleting will do, and for a parent category what happens to its children. */
+@Composable
+internal fun CategoryDeletePanel(state: CategoryPickerState, onEvent: (CategoryPickerEvent) -> Unit) {
+    val hasChildren = state.deletingCategory?.let { dc ->
+        state.allCategories.any { it.parentId == dc.id }
+    } == true
+    val childNames = remember(state.deletingCategory, state.allCategories) {
+        val dc = state.deletingCategory ?: return@remember emptyList()
+        state.allCategories.filter { it.parentId == dc.id }.map { it.name }
+    }
+
+    // Delete flow: impact card + parent choice
+    if (state.deletePhase == DeletePhase.CONFIRM || state.deletePhase == DeletePhase.SWIPING) {
+        state.deletingCategory?.let { dc ->
+            ImpactCard(
+                categoryName = dc.name,
+                linkCount = state.deletedLinkCount,
+                isSwiping = state.deletePhase == DeletePhase.SWIPING,
+            )
+            if (hasChildren) {
+                ParentChoiceCard(
+                    parentName = dc.name,
+                    childNames = childNames,
+                    choice = state.parentDeleteChoice,
+                    onChoice = { onEvent(CategoryPickerEvent.ParentDeleteChoice(it)) },
+                )
+            }
+        }
+    }
+}
 
 /** Radio choice card for how to handle a parent category's children. */
 @Composable
-internal fun ParentChoiceCard(
+private fun ParentChoiceCard(
     parentName: String,
     childNames: List<String>,
     choice: ParentDeleteChoiceKind?,
