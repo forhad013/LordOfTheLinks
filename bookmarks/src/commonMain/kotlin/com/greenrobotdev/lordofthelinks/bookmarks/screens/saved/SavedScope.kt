@@ -13,6 +13,7 @@ sealed interface SavedScope {
     data object Favorites : SavedScope { override val key = "favorites" }
     data object Archived : SavedScope { override val key = "archived" }
     data object Uncategorized : SavedScope { override val key = "uncategorized" }
+    data object Reminders : SavedScope { override val key = "reminders" }
     /** The category and everything inside its subcategories. */
     data class InCategory(val categoryId: String) : SavedScope { override val key = "category-$categoryId" }
     data class WithTag(val tagName: String) : SavedScope { override val key = "tag-$tagName" }
@@ -27,17 +28,23 @@ fun savedInScope(
     links: List<Link>,
     categories: List<Category>,
     linkCategoryIds: Map<String, String>,
+    categoryTagNames: Map<String, Set<String>> = emptyMap(),
 ): List<Link> {
     val keep: (Link) -> Boolean = when (scope) {
         SavedScope.Unopened -> { link -> !link.isOpened && !link.isArchived }
         SavedScope.Favorites -> { link -> link.isFavorite && !link.isArchived }
         SavedScope.Archived -> { link -> link.isArchived }
         SavedScope.Uncategorized -> { link -> linkCategoryIds[link.id] == null }
+        SavedScope.Reminders -> { link -> link.reminderAt != null }
         is SavedScope.InCategory -> {
             val ids = subtreeIds(scope.categoryId, categories)
             ({ link -> linkCategoryIds[link.id] in ids })
         }
-        is SavedScope.WithTag -> { link -> link.tags.any { it.equals(scope.tagName, ignoreCase = true) } }
+        is SavedScope.WithTag -> { link ->
+            val catTags = linkCategoryIds[link.id]?.let { categoryTagNames[it] }.orEmpty()
+            link.tags.any { it.equals(scope.tagName, ignoreCase = true) } ||
+                catTags.any { it.equals(scope.tagName, ignoreCase = true) }
+        }
     }
     return links.filter(keep).sortedByDescending { it.createdAt ?: Long.MIN_VALUE }
 }
@@ -48,6 +55,7 @@ fun SavedScope.title(categories: List<Category>): String = when (this) {
     SavedScope.Favorites -> "Favorites"
     SavedScope.Archived -> "Archived"
     SavedScope.Uncategorized -> "Uncategorized"
+    SavedScope.Reminders -> "Reminders"
     is SavedScope.InCategory -> categories.firstOrNull { it.id == categoryId }?.name ?: "Category"
     is SavedScope.WithTag -> "#$tagName"
 }
@@ -58,6 +66,7 @@ fun SavedScope.emptyMessage(): Pair<String, String> = when (this) {
     SavedScope.Favorites -> "No favorites yet" to "Tap the star on a link's details to keep it here."
     SavedScope.Archived -> "Nothing archived" to "Swipe a link right in the Feed to archive it."
     SavedScope.Uncategorized -> "Everything is sorted" to "Every link has a category."
+    SavedScope.Reminders -> "No reminders" to "Set a reminder on a link's details to revisit it later."
     is SavedScope.InCategory -> "Nothing here yet" to "Links you put in this category show up here."
     is SavedScope.WithTag -> "Nothing tagged yet" to "Links with this tag show up here."
 }

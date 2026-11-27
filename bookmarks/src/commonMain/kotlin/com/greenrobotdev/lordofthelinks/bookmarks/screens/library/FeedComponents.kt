@@ -541,6 +541,33 @@ internal fun savedAtLabel(
     }
 }
 
+@OptIn(ExperimentalTime::class)
+internal fun reminderLabel(
+    epochMs: Long?,
+    nowMs: Long = Clock.System.now().toEpochMilliseconds(),
+    zone: TimeZone = TimeZone.currentSystemDefault(),
+): String {
+    if (epochMs == null || epochMs <= 0L) return ""
+    val target = Instant.fromEpochMilliseconds(epochMs).toLocalDateTime(zone)
+    val today = Instant.fromEpochMilliseconds(nowMs).toLocalDateTime(zone).date
+    val hour = target.hour
+    val minuteStr = target.minute.toString().padStart(2, '0')
+    val amPm = if (hour < 12) "AM" else "PM"
+    val h12 = when { hour == 0 -> 12; hour > 12 -> hour - 12; else -> hour }
+    val time = "$h12:$minuteStr $amPm"
+    val daysUntil = today.daysUntil(target.date)
+    val month = target.month.name.take(3).lowercase().replaceFirstChar { it.uppercaseChar() }
+    val dayOfWeek = target.dayOfWeek.name.lowercase().replaceFirstChar { it.uppercaseChar() }
+    return when {
+        daysUntil < 0 -> "Overdue · $time"
+        daysUntil == 0 -> "Today, $time"
+        daysUntil == 1 -> "Tomorrow, $time"
+        daysUntil in 2..6 -> "$dayOfWeek, $time"
+        target.year == today.year -> "${target.date.day} $month, $time"
+        else -> "${target.date.day} $month ${target.year}, $time"
+    }
+}
+
 /**
  * Feed section a save falls under: "Today", "Yesterday", "This week" (2–6 days ago) or "Earlier".
  * Undated saves go to "Earlier"; a future date from a wrong clock counts as "Today".

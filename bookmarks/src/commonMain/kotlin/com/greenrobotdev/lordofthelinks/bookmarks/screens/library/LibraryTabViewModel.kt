@@ -20,6 +20,7 @@ data class LibraryTabState(
     val favoritesCount: Int = 0,
     val archivedCount: Int = 0,
     val uncategorizedCount: Int = 0,
+    val remindersCount: Int = 0,
     val categories: List<Category> = emptyList(),
     val tags: List<Tag> = emptyList()
 )
@@ -40,7 +41,8 @@ class LibraryTabViewModel : MoleculeViewModel<LibraryTabEvent, LibraryTabState>(
                     unopenedCount = it.unopened,
                     favoritesCount = it.favorites,
                     archivedCount = it.archived,
-                    uncategorizedCount = it.uncategorized
+                    uncategorizedCount = it.uncategorized,
+                    remindersCount = it.reminders
                 ) }
             }
         }

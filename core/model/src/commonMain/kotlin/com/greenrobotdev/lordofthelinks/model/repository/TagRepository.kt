@@ -49,4 +49,10 @@ interface TagRepository {
      * Remove a tag from a link
      */
     suspend fun removeTagFromLink(linkId: String, tagId: String): Flow<Result<Unit>>
+
+    suspend fun assignTagToCategory(categoryId: String, tagId: String): Flow<Result<Unit>>
+    suspend fun removeTagFromCategory(categoryId: String, tagId: String): Flow<Result<Unit>>
+    suspend fun getTagsForCategory(categoryId: String): Flow<Result<List<Tag>>>
+    /** categoryId -> set of tag names, re-emits on change. */
+    fun getCategoryTagNames(): Flow<Result<Map<String, Set<String>>>>
 }

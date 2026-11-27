@@ -86,6 +86,11 @@ fun LibraryPresenter(
             }
         }
     }
+    LaunchedEffect(Unit) {
+        tagRepository.getCategoryTagNames().collect { result ->
+            result.onSuccess { state = state.copy(categoryTagNames = it) }
+        }
+    }
 
     LaunchedEffect(Unit) {
         events.collect { event ->

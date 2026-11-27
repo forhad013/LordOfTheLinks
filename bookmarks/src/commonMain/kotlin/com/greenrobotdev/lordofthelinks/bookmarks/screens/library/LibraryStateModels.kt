@@ -57,6 +57,8 @@ data class LibraryState(
     val tags: List<Tag> = emptyList(),
     /** linkId → categoryId */
     val linkCategoryIds: Map<String, String> = emptyMap(),
+    /** categoryId → set of tag names (inherited tags from category_tags). */
+    val categoryTagNames: Map<String, Set<String>> = emptyMap(),
     val searchQuery: String = "",
     val filters: FeedFilters = FeedFilters(),
 ) {
@@ -131,7 +133,9 @@ fun filterFeed(
     val tagNames = state.tags.filter { it.id in filters.tagIds }.map { it.name.lowercase() }.toSet()
     val since = filters.saved.startMs(nowMs)
     return state.links.filter { link ->
-        val linkTags = link.tags.map { it.lowercase() }
+        val catId = state.linkCategoryIds[link.id]
+        val inheritedTags = catId?.let { state.categoryTagNames[it] }?.map { it.lowercase() }.orEmpty()
+        val linkTags = (link.tags.map { it.lowercase() } + inheritedTags).distinct()
         when (filters.opened) {
             OpenedFilter.ALL -> filters.includeArchived || !link.isArchived
             OpenedFilter.UNOPENED -> !link.isOpened && (filters.includeArchived || !link.isArchived)

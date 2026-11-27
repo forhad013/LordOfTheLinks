@@ -10,6 +10,7 @@ import com.greenrobotdev.lordofthelinks.model.Category
 import com.greenrobotdev.lordofthelinks.model.Link
 import com.greenrobotdev.lordofthelinks.model.repository.CategoryRepository
 import com.greenrobotdev.lordofthelinks.model.repository.LinkRepository
+import com.greenrobotdev.lordofthelinks.model.repository.TagRepository
 import com.greenrobotdev.lordofthelinks.utils.MoleculeViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -22,8 +23,9 @@ data class SavedListState(
     val categories: List<Category> = emptyList(),
     /** linkId → categoryId */
     val linkCategoryIds: Map<String, String> = emptyMap(),
+    val categoryTagNames: Map<String, Set<String>> = emptyMap(),
 ) {
-    fun visible(scope: SavedScope): List<Link> = savedInScope(scope, links, categories, linkCategoryIds)
+    fun visible(scope: SavedScope): List<Link> = savedInScope(scope, links, categories, linkCategoryIds, categoryTagNames)
     fun categoryOf(link: Link): Category? = linkCategoryIds[link.id]?.let { id -> categories.firstOrNull { it.id == id } }
 }
 
@@ -40,6 +42,7 @@ class SavedListViewModel : MoleculeViewModel<SavedListEvent, SavedListState>(), 
 
     private val linkRepository: LinkRepository by inject()
     private val categoryRepository: CategoryRepository by inject()
+    private val tagRepository: TagRepository by inject()
 
     @Composable
     override fun models(events: Flow<SavedListEvent>): SavedListState {
@@ -59,6 +62,11 @@ class SavedListViewModel : MoleculeViewModel<SavedListEvent, SavedListState>(), 
         LaunchedEffect(Unit) {
             categoryRepository.getLinkCategoryIds().collect { result ->
                 result.onSuccess { state = state.copy(linkCategoryIds = it) }
+            }
+        }
+        LaunchedEffect(Unit) {
+            tagRepository.getCategoryTagNames().collect { result ->
+                result.onSuccess { state = state.copy(categoryTagNames = it) }
             }
         }
         LaunchedEffect(Unit) {

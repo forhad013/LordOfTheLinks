@@ -108,4 +108,22 @@ class RoomLinkRepository(
             flow { emit(Result.failure(e)) }
         }
     }
+
+    override suspend fun setReminder(linkId: String, reminderAt: Long): Flow<Result<Unit>> {
+        return try {
+            linkDao.setReminder(linkId, reminderAt)
+            flow { emit(Result.success(Unit)) }
+        } catch (e: Exception) {
+            flow { emit(Result.failure(e)) }
+        }
+    }
+
+    override suspend fun clearReminder(linkId: String): Flow<Result<Unit>> {
+        return try {
+            linkDao.clearReminder(linkId)
+            flow { emit(Result.success(Unit)) }
+        } catch (e: Exception) {
+            flow { emit(Result.failure(e)) }
+        }
+    }
 }

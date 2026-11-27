@@ -41,4 +41,10 @@ interface LinkDao {
 
     @Query("DELETE FROM links WHERE id = :linkId")
     suspend fun deleteLinkById(linkId: String): Int
+
+    @Query("UPDATE links SET reminderAt = :reminderAt WHERE id = :linkId")
+    suspend fun setReminder(linkId: String, reminderAt: Long): Int
+
+    @Query("UPDATE links SET reminderAt = NULL WHERE id = :linkId")
+    suspend fun clearReminder(linkId: String): Int
 }

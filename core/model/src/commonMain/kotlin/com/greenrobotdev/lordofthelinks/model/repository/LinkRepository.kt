@@ -13,4 +13,6 @@ interface LinkRepository {
     suspend fun markOpened(linkId: String): Flow<Result<Unit>>
     /** Stores the preview image URL ("" = the page has none, so it isn't fetched again). */
     suspend fun setImageUrl(linkId: String, imageUrl: String): Flow<Result<Unit>>
+    suspend fun setReminder(linkId: String, reminderAt: Long): Flow<Result<Unit>>
+    suspend fun clearReminder(linkId: String): Flow<Result<Unit>>
 }

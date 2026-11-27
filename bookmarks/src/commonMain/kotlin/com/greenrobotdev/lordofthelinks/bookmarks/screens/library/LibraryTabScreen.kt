@@ -3,6 +3,7 @@ package com.greenrobotdev.lordofthelinks.bookmarks.screens.library
 import com.greenrobotdev.lordofthelinks.design.foundation.icon.AppIcon
 import com.greenrobotdev.lordofthelinks.design.components.button.DashedPillButton
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.foundation.layout.size
@@ -136,6 +137,11 @@ fun LibraryTabScreen(
                         onOpenScope
                     )
                 }
+                RemindersTile(
+                    count = state.remindersCount,
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { onOpenScope(SavedScope.Reminders) },
+                )
             }
         }
 
@@ -244,6 +250,39 @@ private fun SmartTile(
     ) {
         Text(label, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = content)
         Text(countLabel, style = MaterialTheme.typography.bodySmall, color = content)
+    }
+}
+
+@Composable
+private fun RemindersTile(count: Int, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f))
+            .clickable(onClickLabel = "Open Reminders", onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        AppIcon(
+            Icons.Filled.Notifications,
+            contentDescription = null,
+            color = MaterialTheme.colorScheme.tertiary,
+            modifier = Modifier.size(22.dp),
+        )
+        Text(
+            "Reminders",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f),
+        )
+        Text(
+            "$count",
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.tertiary,
+        )
     }
 }
 

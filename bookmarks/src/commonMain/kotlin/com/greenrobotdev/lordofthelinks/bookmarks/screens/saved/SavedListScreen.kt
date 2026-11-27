@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.Label
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material3.AlertDialog
@@ -73,6 +74,7 @@ fun SavedScope.look(): ScopeLook = when (this) {
     SavedScope.Favorites -> ScopeLook(MaterialTheme.colorScheme.tertiaryContainer, MaterialTheme.colorScheme.onTertiaryContainer, Icons.Filled.Star)
     SavedScope.Archived -> ScopeLook(MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.onSecondaryContainer, Icons.Filled.Archive)
     SavedScope.Uncategorized -> ScopeLook(LordsExtraColors.successContainer, LordsExtraColors.onSuccessContainer, Icons.Filled.Label)
+    SavedScope.Reminders -> ScopeLook(MaterialTheme.colorScheme.tertiaryContainer, MaterialTheme.colorScheme.onTertiaryContainer, Icons.Filled.Notifications)
     is SavedScope.InCategory -> ScopeLook(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.onPrimaryContainer, Icons.Filled.FolderOpen)
     is SavedScope.WithTag -> ScopeLook(MaterialTheme.colorScheme.surfaceContainerHigh, MaterialTheme.colorScheme.onSurface, Icons.Filled.Tag)
 }

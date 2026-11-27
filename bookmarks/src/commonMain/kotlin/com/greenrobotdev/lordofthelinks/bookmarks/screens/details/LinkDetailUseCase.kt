@@ -104,6 +104,14 @@ fun LinkDetailPresenter(
                         ?.let { state = state.copy(error = it.message ?: "Could not change tags") }
                 }
 
+                is LinkDetailEvent.SetReminder -> {
+                    linkRepository.setReminder(linkId, event.reminderAt).first()
+                        .onFailure { state = state.copy(error = it.message ?: "Could not set reminder") }
+                }
+                LinkDetailEvent.ClearReminder -> {
+                    linkRepository.clearReminder(linkId).first()
+                        .onFailure { state = state.copy(error = it.message ?: "Could not clear reminder") }
+                }
                 is LinkDetailEvent.NoteChanged -> {
                     pendingNote = event.note
                     state = state.copy(link = state.link?.copy(description = event.note), noteSaving = true)
