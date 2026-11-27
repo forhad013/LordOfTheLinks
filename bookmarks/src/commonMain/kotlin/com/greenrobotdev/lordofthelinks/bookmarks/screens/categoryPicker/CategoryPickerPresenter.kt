@@ -7,9 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.greenrobotdev.lordofthelinks.model.Category
-import com.greenrobotdev.lordofthelinks.model.Tag
 import com.greenrobotdev.lordofthelinks.model.repository.CategoryRepository
-import com.greenrobotdev.lordofthelinks.model.repository.TagRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -37,21 +35,8 @@ fun CategoryPickerPresenter(
     linkId: String?,
     initialSelection: String?,
     categoryRepository: CategoryRepository = koinInject(),
-    tagRepository: TagRepository = koinInject(),
 ): CategoryPickerState {
     var state by remember { mutableStateOf(initialState) }
-
-    // Tags per category: feeds the chips on rows and the tag-editing sheet
-    LaunchedEffect(Unit) {
-        tagRepository.getCategoryTagNames().collect { result ->
-            result.onSuccess { state = state.copy(categoryTagNames = it) }
-        }
-    }
-    LaunchedEffect(Unit) {
-        tagRepository.getTagsWithCounts().collect { result ->
-            result.onSuccess { state = state.copy(tags = it) }
-        }
-    }
 
     // Tree stream: first emission seeds selection (link's current category) and expands ancestors
     LaunchedEffect(Unit) {
@@ -274,35 +259,6 @@ fun CategoryPickerPresenter(
                 }
 
                 CategoryPickerEvent.ClearError -> state = state.copy(error = null)
-
-                is CategoryPickerEvent.EditTags -> state = state.copy(editingTagsOf = event.categoryId)
-
-                CategoryPickerEvent.CloseTagEditor -> state = state.copy(editingTagsOf = null)
-
-                is CategoryPickerEvent.ToggleCategoryTag -> {
-                    val assigned = state.categoryTagNames[event.categoryId].orEmpty()
-                    val tagId = event.tagId
-                    val tagName = state.tags.firstOrNull { it.id == tagId }?.name
-                    if (tagName != null) {
-                        if (tagName in assigned) {
-                            tagRepository.removeTagFromCategory(event.categoryId, tagId).first()
-                        } else {
-                            tagRepository.assignTagToCategory(event.categoryId, tagId).first()
-                        }
-                        // getCategoryTagNames flow re-emits and refreshes state.categoryTagNames
-                    }
-                }
-
-                is CategoryPickerEvent.AddCategoryTagByName -> {
-                    val name = event.name.trim()
-                    if (name.isNotEmpty()) {
-                        val existing = state.tags.firstOrNull { it.name.equals(name, ignoreCase = true) }
-                        val tag = existing ?: tagRepository.addTag(Tag(id = "", name = name, count = 0)).first().getOrNull()
-                        if (tag != null) {
-                            tagRepository.assignTagToCategory(event.categoryId, tag.id).first()
-                        }
-                    }
-                }
             }
         }
     }

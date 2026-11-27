@@ -16,7 +16,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -387,22 +386,9 @@ internal fun CategoryPickerContent(
                     modifier = spread,
                 )
                 AppBarAction(Icons.Filled.Edit, "Rename", { onEvent(CategoryPickerEvent.Rename) }, enabled = selected != null, modifier = spread)
-                AppBarAction(Icons.Filled.Tag, "Tags", { selected?.let { onEvent(CategoryPickerEvent.EditTags(it.id)) } }, enabled = selected != null, modifier = spread)
                 AppBarAction(Icons.Filled.Delete, "Remove", { onEvent(CategoryPickerEvent.Remove) }, enabled = selected != null, isError = true, modifier = spread)
                 if (showUseThis) AppBarPill(text = "Use this", onClick = { onEvent(CategoryPickerEvent.UseThis) }, modifier = Modifier.weight(1f))
             }
         }
-    }
-
-    // Tag-editing sheet for one category: tap a tag to toggle it, or type to create + assign
-    state.editingTagsOf?.let { categoryId ->
-        CategoryTagEditorSheet(
-            category = state.allCategories.firstOrNull { it.id == categoryId },
-            tags = state.tags,
-            assignedNames = state.categoryTagNames[categoryId].orEmpty(),
-            onToggle = { tagId -> onEvent(CategoryPickerEvent.ToggleCategoryTag(categoryId, tagId)) },
-            onCreate = { name -> onEvent(CategoryPickerEvent.AddCategoryTagByName(categoryId, name)) },
-            onDismiss = { onEvent(CategoryPickerEvent.CloseTagEditor) },
-        )
     }
 }
